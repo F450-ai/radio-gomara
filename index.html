@@ -1,215 +1,314 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Radio Gomara - Control Remoto Cloud</title>
-    <!-- Cliente MQTT nativo para el navegador vía WebSockets -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/mqtt/4.3.7/mqtt.min.js"></script>
-    <style>
-        * { box-sizing: border-box; }
-        body {
-            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-            background: linear-gradient(135deg, #090d16 0%, #111126 100%);
-            color: #f1f5f9;
-            text-align: center;
-            padding: 20px 15px;
-            margin: 0;
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .box {
-            width: 100%;
-            max-width: 440px;
-            background: rgba(22, 28, 45, 0.85);
-            padding: 30px 24px;
-            border-radius: 24px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.6);
-            border: 1px solid rgba(56,189,248,0.2);
-            backdrop-filter: blur(16px);
-        }
-        h2 {
-            color: #38bdf8;
-            margin: 0 0 5px 0;
-            font-size: 26px;
-            font-weight: 800;
-            letter-spacing: 1px;
-            text-transform: uppercase;
-        }
-        .subtitle {
-            color: #64748b;
-            font-size: 13px;
-            margin-bottom: 24px;
-            font-weight: 500;
-        }
-        .form-group {
-            margin-bottom: 16px;
-            text-align: left;
-        }
-        label {
-            display: block;
-            font-size: 11px;
-            font-weight: 700;
-            color: #94a3b8;
-            margin-bottom: 6px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-        input[type=text], input[type=password] {
-            width: 100%;
-            padding: 12px 14px;
-            background: #0b0f19;
-            border: 1px solid #1e293b;
-            border-radius: 12px;
-            color: #fff;
-            font-size: 14px;
-            transition: border-color 0.2s;
-        }
-        input:focus {
-            border-color: #38bdf8;
-            outline: none;
-            background: #0f172a;
-        }
-        .btn {
-            width: 100%;
-            padding: 12px;
-            background: #38bdf8;
-            color: #090d16;
-            border: none;
-            border-radius: 12px;
-            font-weight: bold;
-            font-size: 14px;
-            cursor: pointer;
-            margin-top: 8px;
-            transition: all 0.2s ease;
-        }
-        .btn:hover { background: #0ea5e9; transform: translateY(-1px); }
-        .btn:active { transform: translateY(0); }
-        .btn-red { background: #ef4444; color: #fff; }
-        .btn-red:hover { background: #dc2626; }
-        .hidden { display: none; }
-        .grid-buttons {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            margin-top: 15px;
-        }
-        .status {
-            font-size: 12px;
-            color: #34d399;
-            margin-top: 20px;
-            font-weight: 600;
-            padding: 8px;
-            background: rgba(52, 211, 153, 0.1);
-            border-radius: 8px;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Control Radio Gomara</title>
+  <!-- Library Paho MQTT over WebSockets -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/paho-mqtt/1.0.1/mqttws31.min.js"></script>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+      background-color: #121212;
+      color: #FFFFFF;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+      min-height: 100vh;
+    }
+
+    h1 {
+      margin-bottom: 5px;
+      color: #00E676;
+    }
+
+    .status-bar {
+      font-size: 14px;
+      margin-bottom: 25px;
+      padding: 6px 12px;
+      border-radius: 20px;
+      background-color: #333;
+    }
+
+    .connected { color: #00E676; }
+    .disconnected { color: #FF5252; }
+
+    .section-card {
+      background-color: #1E1E1E;
+      width: 100%;
+      max-width: 500px;
+      padding: 20px;
+      border-radius: 12px;
+      margin-bottom: 25px; /* Separación ampliada */
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+    }
+
+    .section-title {
+      font-size: 16px;
+      font-weight: bold;
+      margin-bottom: 15px;
+      color: #B0BEC5;
+      border-bottom: 1px solid #333;
+      padding-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .grid-buttons {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px; /* Mayor separación entre botones */
+    }
+
+    button {
+      padding: 14px;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: bold;
+      cursor: pointer;
+      background-color: #2C2C2C;
+      color: #E0E0E0;
+      transition: all 0.2s ease;
+      border: 2px solid transparent;
+    }
+
+    button:hover {
+      background-color: #3A3A3A;
+    }
+
+    /* Estado Activo para Modos de Cartel */
+    button.active-mode {
+      background-color: #00C853 !important;
+      color: #000000 !important;
+      border-color: #69F0AE;
+      box-shadow: 0 0 10px rgba(0, 230, 118, 0.4);
+    }
+
+    /* Estilos para Control de Luces */
+    .light-btn {
+      background-color: #263238;
+      color: #ECEFF1;
+    }
+
+    button.light-on-white {
+      background-color: #FFFDE7 !important;
+      color: #000000 !important;
+      border-color: #FFF176;
+      box-shadow: 0 0 12px rgba(255, 255, 225, 0.5);
+    }
+
+    button.light-on-red {
+      background-color: #D50000 !important;
+      color: #FFFFFF !important;
+      border-color: #FF5252;
+      box-shadow: 0 0 12px rgba(255, 82, 82, 0.5);
+    }
+
+    /* Formulario de Mensajes Personalizados */
+    .msg-group {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .msg-group:last-child {
+      margin-bottom: 0;
+    }
+
+    input[type="text"] {
+      flex: 1;
+      padding: 10px 12px;
+      border-radius: 6px;
+      border: 1px solid #444;
+      background-color: #121212;
+      color: #FFF;
+      font-size: 14px;
+    }
+
+    input[type="text"]:focus {
+      outline: none;
+      border-color: #00E676;
+    }
+
+    .btn-send {
+      background-color: #2979FF;
+      color: #FFF;
+      min-width: 80px;
+    }
+
+    .btn-send:hover {
+      background-color: #2962FF;
+    }
+  </style>
 </head>
 <body>
 
-    <!-- PANTALLA DE ACCESO/SEGURIDAD -->
-    <div class="box" id="loginScreen">
-        <h2>Seguridad</h2>
-        <div class="subtitle">Ingrese la clave de control para continuar</div>
-        <div class="form-group">
-            <label>Contraseña de acceso</label>
-            <input type="password" id="passInput" placeholder="••••••••" onkeydown="if(event.key==='Enter') verificarPassword()">
-        </div>
-        <button class="btn" onclick="verificarPassword()">Ingresar al Panel</button>
+  <h1>RADIO GOMARA</h1>
+  <div id="status" class="status-bar disconnected">Estado: Desconectado</div>
+
+  <!-- SECCIÓN 1: MENSAJES PERSONALIZADOS (A, B, C) -->
+  <div class="section-card">
+    <div class="section-title">Mensajes Personalizados</div>
+    
+    <!-- Mensaje A -->
+    <div class="msg-group">
+      <input type="text" id="inputA" placeholder="Texto A..." value="COMUNICACION GOMARA">
+      <button class="btn-send" id="btnMsgA" onclick="enviarTextoPersonalizado('A', 'inputA', 'btnMsgA')">Enviar A</button>
     </div>
 
-    <!-- PANEL DE CONTROL DE COMANDOS -->
-    <div class="box hidden" id="controlScreen">
-        <h2>Radio Gomara</h2>
-        <div class="subtitle">Consola de Mando Cloud (MQTT)</div>
-        
-        <div class="form-group">
-            <label>Texto Personalizado A</label>
-            <input type="text" id="msgA" maxlength="50" value="COMUNICACION GOMARA">
-            <button class="btn" onclick="enviarMensaje('A', document.getElementById('msgA').value)">Lanzar Texto A</button>
-        </div>
-
-        <div class="form-group" style="margin-top:20px;">
-            <label>Texto Personalizado B</label>
-            <input type="text" id="msgB" maxlength="50" value="ESTUDIO EN VIVO">
-            <button class="btn" onclick="enviarMensaje('B', document.getElementById('msgB').value)">Lanzar Texto B</button>
-        </div>
-
-        <div class="grid-buttons">
-            <button class="btn" onclick="enviarComando('2')">EN VIVO</button>
-            <button class="btn" onclick="enviarComando('3')">PUBLICIDAD</button>
-            <button class="btn" onclick="enviarComando('4')">INICIO</button>
-            <button class="btn" onclick="enviarComando('5')">FIN</button>
-            <button class="btn" onclick="enviarComando('6')">ESTUDIO A</button>
-            <button class="btn" onclick="enviarComando('7')">ESTUDIO B</button>
-        </div>
-
-        <div class="grid-buttons">
-            <button class="btn" onclick="enviarComando('W')">Luz Blanca ON</button>
-            <button class="btn btn-red" onclick="enviarComando('w')">Luz Blanca OFF</button>
-            <button class="btn" onclick="enviarComando('R')">Luz Roja ON</button>
-            <button class="btn btn-red" onclick="enviarComando('r')">Luz Roja OFF</button>
-        </div>
-
-        <div class="status" id="connectionStatus">Conectando con el servidor Cloud...</div>
+    <!-- Mensaje B -->
+    <div class="msg-group">
+      <input type="text" id="inputB" placeholder="Texto B..." value="ESTUDIO EN VIVO">
+      <button class="btn-send" id="btnMsgB" onclick="enviarTextoPersonalizado('B', 'inputB', 'btnMsgB')">Enviar B</button>
     </div>
 
-    <script>
-        // CONFIGURACIÓN CLOUD
-        // Reemplaza TU_CLUSTER por tu dirección de HiveMQ Cloud
-        const brokerUrl = "wss://f451d2f10b9c484ba36dc859e45ca653.s1.eu.hivemq.cloud:8884/mqtt";
-        const mqttUser = "radio_gomara";
-        const mqttPass = "gomara2026";
-        const claveSecreta = "1234";
+    <!-- Mensaje C -->
+    <div class="msg-group">
+      <input type="text" id="inputC" placeholder="Texto C..." value="RADIO GOMARA 88.5">
+      <button class="btn-send" id="btnMsgC" onclick="enviarTextoPersonalizado('C', 'inputC', 'btnMsgC')">Enviar C</button>
+    </div>
+  </div>
 
-        let client = null;
+  <!-- SECCIÓN 2: MODOS FIJOS DEL CARTEL -->
+  <div class="section-card">
+    <div class="section-title">Modos de Cartel</div>
+    <div class="grid-buttons">
+      <button id="btn1" onclick="seleccionarModo('1', 'btn1')">5 MINUTOS</button>
+      <button id="btn2" onclick="seleccionarModo('2', 'btn2')">EN VIVO</button>
+      <button id="btn3" onclick="seleccionarModo('3', 'btn3')">PUBLICIDAD</button>
+      <button id="btn4" onclick="seleccionarModo('4', 'btn4')">INICIO</button>
+      <button id="btn5" onclick="seleccionarModo('5', 'btn5')">FIN</button>
+      <button id="btn6" onclick="seleccionarModo('6', 'btn6')">ESTUDIO A</button>
+      <button id="btn7" onclick="seleccionarModo('7', 'btn7')">ESTUDIO B</button>
+    </div>
+  </div>
 
-        function verificarPassword() {
-            let ingresada = document.getElementById('passInput').value;
-            if(ingresada === claveSecreta) {
-                document.getElementById('loginScreen').classList.add('hidden');
-                document.getElementById('controlScreen').classList.remove('hidden');
-                conectarMQTT();
-            } else {
-                alert("Contraseña incorrecta");
-            }
+  <!-- SECCIÓN 3: CONTROL DE LUCES INDEPENDIENTE -->
+  <div class="section-card">
+    <div class="section-title">Control de Luces</div>
+    <div class="grid-buttons">
+      <button id="btnLuzBlanca" class="light-btn" onclick="toggleLuz('blanca')">
+        LUZ BLANCA: OFF
+      </button>
+      <button id="btnLuzRoja" class="light-btn" onclick="toggleLuz('roja')">
+        LUZ ROJA: OFF
+      </button>
+    </div>
+  </div>
+
+  <script>
+    // --- CONFIGURACIÓN CONEXIÓN HIVEMQ WEBSOCKETS ---
+    const broker = "f451d2f10b9c484ba36dc859e45ca653.s1.eu.hivemq.cloud";
+    const port = 8884; // Puerto WebSocket TLS/SSL de HiveMQ
+    const topic = "gomara/control";
+
+    const clientID = "WebControl_" + Math.random().toString(16).substr(2, 8);
+    const client = new Paho.MQTT.Client(broker, port, clientID);
+
+    // Estado interno de luces
+    let estadoLuzBlanca = false;
+    let estadoLuzRoja = false;
+
+    client.onConnectionLost = onConnectionLost;
+
+    // Conectar a HiveMQ Cloud
+    client.connect({
+      useSSL: true,
+      userName: "radio_gomara",
+      password: "gomara2026",
+      onSuccess: onConnect,
+      onFailure: onFailure
+    });
+
+    function onConnect() {
+      const statusDiv = document.getElementById("status");
+      statusDiv.innerHTML = "Estado: Conectado a la Nube";
+      statusDiv.className = "status-bar connected";
+    }
+
+    function onFailure(response) {
+      const statusDiv = document.getElementById("status");
+      statusDiv.innerHTML = "Error de conexión: " + response.errorMessage;
+      statusDiv.className = "status-bar disconnected";
+    }
+
+    function onConnectionLost(responseObject) {
+      if (responseObject.errorCode !== 0) {
+        const statusDiv = document.getElementById("status");
+        statusDiv.innerHTML = "Conexión perdida. Reintentando...";
+        statusDiv.className = "status-bar disconnected";
+      }
+    }
+
+    function enviarComando(msg) {
+      if (client.isConnected()) {
+        const message = new Paho.MQTT.Message(msg);
+        message.destinationName = topic;
+        client.send(message);
+      } else {
+        alert("No hay conexión con la nube.");
+      }
+    }
+
+    // --- MANEJO DE SELECCIÓN VISUAL DE BOTONES DE CARTEL ---
+    function limpiarSeleccionModos() {
+      const botones = document.querySelectorAll('.grid-buttons button, .btn-send');
+      botones.forEach(btn => {
+        btn.classList.remove('active-mode');
+      });
+    }
+
+    function seleccionarModo(cmd, btnId) {
+      limpiarSeleccionModos();
+      document.getElementById(btnId).classList.add('active-mode');
+      enviarComando(cmd);
+    }
+
+    function enviarTextoPersonalizado(prefijo, inputId, btnId) {
+      const texto = document.getElementById(inputId).value.trim();
+      if (texto.length > 0) {
+        limpiarSeleccionModos();
+        document.getElementById(btnId).classList.add('active-mode');
+        enviarComando(prefijo + ":" + texto);
+      }
+    }
+
+    // --- MANEJO INDEPENDIENTE DE LUCES ---
+    function toggleLuz(tipo) {
+      if (tipo === 'blanca') {
+        estadoLuzBlanca = !estadoLuzBlanca;
+        const btn = document.getElementById('btnLuzBlanca');
+        if (estadoLuzBlanca) {
+          btn.innerHTML = "LUZ BLANCA: ON";
+          btn.className = "light-btn light-on-white";
+          enviarComando("W");
+        } else {
+          btn.innerHTML = "LUZ BLANCA: OFF";
+          btn.className = "light-btn";
+          enviarComando("w");
         }
-
-        function conectarMQTT() {
-            client = mqtt.connect(brokerUrl, {
-                username: mqttUser,
-                password: mqttPass,
-                clean: true
-            });
-
-            client.on('connect', () => {
-                document.getElementById('connectionStatus').innerText = "Conectado al Servidor Nube ✓";
-            });
-
-            client.on('error', (err) => {
-                document.getElementById('connectionStatus').innerText = "Error de conexión con la Nube";
-                console.error(err);
-            });
+      } else if (tipo === 'roja') {
+        estadoLuzRoja = !estadoLuzRoja;
+        const btn = document.getElementById('btnLuzRoja');
+        if (estadoLuzRoja) {
+          btn.innerHTML = "LUZ ROJA: ON";
+          btn.className = "light-btn light-on-red";
+          enviarComando("R");
+        } else {
+          btn.innerHTML = "LUZ ROJA: OFF";
+          btn.className = "light-btn";
+          enviarComando("r");
         }
-
-        function enviarComando(cmd) {
-            if(client && client.connected) {
-                client.publish("gomara/control", cmd);
-            } else {
-                alert("Sin conexión con el servidor");
-            }
-        }
-
-        function enviarMensaje(tipo, texto) {
-            if(client && client.connected) {
-                let payload = tipo + ":" + texto;
-                client.publish("gomara/control", payload);
-            } else {
-                alert("Sin conexión con el servidor");
-            }
-        }
-    </script>
+      }
+    }
+  </script>
 </body>
 </html>
