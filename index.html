@@ -46,7 +46,7 @@
       max-width: 500px;
       padding: 20px;
       border-radius: 12px;
-      margin-bottom: 25px; /* Separación ampliada */
+      margin-bottom: 25px;
       box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
     }
 
@@ -64,7 +64,7 @@
     .grid-buttons {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
-      gap: 12px; /* Mayor separación entre botones */
+      gap: 12px;
     }
 
     button {
@@ -84,7 +84,6 @@
       background-color: #3A3A3A;
     }
 
-    /* Estado Activo para Modos de Cartel */
     button.active-mode {
       background-color: #00C853 !important;
       color: #000000 !important;
@@ -92,7 +91,6 @@
       box-shadow: 0 0 10px rgba(0, 230, 118, 0.4);
     }
 
-    /* Estilos para Control de Luces */
     .light-btn {
       background-color: #263238;
       color: #ECEFF1;
@@ -112,7 +110,6 @@
       box-shadow: 0 0 12px rgba(255, 82, 82, 0.5);
     }
 
-    /* Formulario de Mensajes Personalizados */
     .msg-group {
       display: flex;
       gap: 8px;
@@ -166,13 +163,13 @@
 
     <!-- Mensaje B -->
     <div class="msg-group">
-      <input type="text" id="inputB" placeholder="Texto B..." value="ESTUDIO EN VIVO">
+      <input type="text" id="inputB" placeholder="Texto B..." value="COMUNICACION GOMARA">
       <button class="btn-send" id="btnMsgB" onclick="enviarTextoPersonalizado('B', 'inputB', 'btnMsgB')">Enviar B</button>
     </div>
 
     <!-- Mensaje C -->
     <div class="msg-group">
-      <input type="text" id="inputC" placeholder="Texto C..." value="RADIO GOMARA 88.5">
+      <input type="text" id="inputC" placeholder="Texto C..." value="COMUNICACION GOMARA">
       <button class="btn-send" id="btnMsgC" onclick="enviarTextoPersonalizado('C', 'inputC', 'btnMsgC')">Enviar C</button>
     </div>
   </div>
@@ -205,21 +202,18 @@
   </div>
 
   <script>
-    // --- CONFIGURACIÓN CONEXIÓN HIVEMQ WEBSOCKETS ---
     const broker = "f451d2f10b9c484ba36dc859e45ca653.s1.eu.hivemq.cloud";
-    const port = 8884; // Puerto WebSocket TLS/SSL de HiveMQ
+    const port = 8884;
     const topic = "gomara/control";
 
     const clientID = "WebControl_" + Math.random().toString(16).substr(2, 8);
     const client = new Paho.MQTT.Client(broker, port, clientID);
 
-    // Estado interno de luces
     let estadoLuzBlanca = false;
     let estadoLuzRoja = false;
 
     client.onConnectionLost = onConnectionLost;
 
-    // Conectar a HiveMQ Cloud
     client.connect({
       useSSL: true,
       userName: "radio_gomara",
@@ -258,7 +252,6 @@
       }
     }
 
-    // --- MANEJO DE SELECCIÓN VISUAL DE BOTONES DE CARTEL ---
     function limpiarSeleccionModos() {
       const botones = document.querySelectorAll('.grid-buttons button, .btn-send');
       botones.forEach(btn => {
@@ -281,7 +274,6 @@
       }
     }
 
-    // --- MANEJO INDEPENDIENTE DE LUCES ---
     function toggleLuz(tipo) {
       if (tipo === 'blanca') {
         estadoLuzBlanca = !estadoLuzBlanca;
