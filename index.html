@@ -157,19 +157,19 @@
     
     <!-- Mensaje A -->
     <div class="msg-group">
-      <input type="text" id="inputA" placeholder="Texto A..." value="COMUNICACION GOMARA">
+      <input type="text" id="inputA" placeholder="Texto A..." value="COMUNICACION GOMARA" onkeydown="detectarEnter(event, 'A', 'inputA', 'btnMsgA')">
       <button class="btn-send" id="btnMsgA" onclick="enviarTextoPersonalizado('A', 'inputA', 'btnMsgA')">Enviar A</button>
     </div>
 
     <!-- Mensaje B -->
     <div class="msg-group">
-      <input type="text" id="inputB" placeholder="Texto B..." value="COMUNICACION GOMARA">
+      <input type="text" id="inputB" placeholder="Texto B..." value="COMUNICACION GOMARA" onkeydown="detectarEnter(event, 'B', 'inputB', 'btnMsgB')">
       <button class="btn-send" id="btnMsgB" onclick="enviarTextoPersonalizado('B', 'inputB', 'btnMsgB')">Enviar B</button>
     </div>
 
     <!-- Mensaje C -->
     <div class="msg-group">
-      <input type="text" id="inputC" placeholder="Texto C..." value="COMUNICACION GOMARA">
+      <input type="text" id="inputC" placeholder="Texto C..." value="COMUNICACION GOMARA" onkeydown="detectarEnter(event, 'C', 'inputC', 'btnMsgC')">
       <button class="btn-send" id="btnMsgC" onclick="enviarTextoPersonalizado('C', 'inputC', 'btnMsgC')">Enviar C</button>
     </div>
   </div>
@@ -271,6 +271,14 @@
         limpiarSeleccionModos();
         document.getElementById(btnId).classList.add('active-mode');
         enviarComando(prefijo + ":" + texto);
+      }
+    }
+
+    // Detecta la tecla Enter al escribir en los inputs
+    function detectarEnter(event, prefijo, inputId, btnId) {
+      if (event.key === "Enter" || event.keyCode === 13) {
+        event.preventDefault(); // Evita recargar la página o enviar un formulario
+        enviarTextoPersonalizado(prefijo, inputId, btnId);
       }
     }
 
