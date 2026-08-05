@@ -61,6 +61,32 @@
       letter-spacing: 1px;
     }
 
+    /* PANTALLA DE LOGIN */
+    #loginScreen {
+      margin-top: 50px;
+      text-align: center;
+    }
+
+    .login-box {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      margin-top: 15px;
+    }
+
+    .error-msg {
+      color: #FF5252;
+      font-size: 13px;
+      display: none;
+    }
+
+    /* CONTENEDOR PRINCIPAL (Oculto por defecto) */
+    #mainContent {
+      display: none;
+      width: 100%;
+      max-width: 500px;
+    }
+
     .grid-buttons {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
@@ -120,7 +146,7 @@
       margin-bottom: 0;
     }
 
-    input[type="text"] {
+    input[type="text"], input[type="password"] {
       flex: 1;
       padding: 10px 12px;
       border-radius: 6px;
@@ -130,7 +156,7 @@
       font-size: 14px;
     }
 
-    input[type="text"]:focus {
+    input[type="text"]:focus, input[type="password"]:focus {
       outline: none;
       border-color: #00E676;
     }
@@ -149,78 +175,122 @@
 <body>
 
   <h1>RADIO GOMARA</h1>
-  <div id="status" class="status-bar disconnected">Estado: Desconectado</div>
 
-  <!-- SECCIÓN 1: MENSAJES PERSONALIZADOS (A, B, C) -->
-  <div class="section-card">
-    <div class="section-title">Mensajes Personalizados</div>
-    
-    <!-- Mensaje A -->
-    <div class="msg-group">
-      <input type="text" id="inputA" placeholder="Texto A..." value="COMUNICACION GOMARA" onkeydown="detectarEnter(event, 'A', 'inputA', 'btnMsgA')">
-      <button class="btn-send" id="btnMsgA" onclick="enviarTextoPersonalizado('A', 'inputA', 'btnMsgA')">Enviar A</button>
-    </div>
-
-    <!-- Mensaje B -->
-    <div class="msg-group">
-      <input type="text" id="inputB" placeholder="Texto B..." value="COMUNICACION GOMARA" onkeydown="detectarEnter(event, 'B', 'inputB', 'btnMsgB')">
-      <button class="btn-send" id="btnMsgB" onclick="enviarTextoPersonalizado('B', 'inputB', 'btnMsgB')">Enviar B</button>
-    </div>
-
-    <!-- Mensaje C -->
-    <div class="msg-group">
-      <input type="text" id="inputC" placeholder="Texto C..." value="COMUNICACION GOMARA" onkeydown="detectarEnter(event, 'C', 'inputC', 'btnMsgC')">
-      <button class="btn-send" id="btnMsgC" onclick="enviarTextoPersonalizado('C', 'inputC', 'btnMsgC')">Enviar C</button>
+  <!-- PANTALLA DE ACCESO / LOGIN -->
+  <div id="loginScreen" class="section-card">
+    <div class="section-title">Acceso Restringido</div>
+    <p style="font-size: 14px; color: #aaa;">Ingresa la contraseña para acceder al panel:</p>
+    <div class="login-box">
+      <input type="password" id="passInput" placeholder="Contraseña..." onkeydown="detectarEnterLogin(event)">
+      <button class="btn-send" onclick="validarAcceso()" style="padding: 10px;">Ingresar</button>
+      <div id="errorMsg" class="error-msg">Contraseña incorrecta</div>
     </div>
   </div>
 
-  <!-- SECCIÓN 2: MODOS FIJOS DEL CARTEL -->
-  <div class="section-card">
-    <div class="section-title">Modos de Cartel</div>
-    <div class="grid-buttons">
-      <button id="btn1" onclick="seleccionarModo('1', 'btn1')">5 SEGUNDOS</button>
-      <button id="btn2" onclick="seleccionarModo('2', 'btn2')">EN VIVO</button>
-      <button id="btn3" onclick="seleccionarModo('3', 'btn3')">PUBLICIDAD</button>
-      <button id="btn4" onclick="seleccionarModo('4', 'btn4')">INICIO</button>
-      <button id="btn5" onclick="seleccionarModo('5', 'btn5')">FIN</button>
-      <button id="btn6" onclick="seleccionarModo('6', 'btn6')">ESTUDIO A</button>
-      <button id="btn7" onclick="seleccionarModo('7', 'btn7')">ESTUDIO B</button>
-    </div>
-  </div>
+  <!-- PANEL PRINCIPAL (Se muestra solo tras autenticarse) -->
+  <div id="mainContent">
+    <div id="status" class="status-bar disconnected" style="text-align: center;">Estado: Desconectado</div>
 
-  <!-- SECCIÓN 3: CONTROL DE LUCES INDEPENDIENTE -->
-  <div class="section-card">
-    <div class="section-title">Control de Luces</div>
-    <div class="grid-buttons">
-      <button id="btnLuzBlanca" class="light-btn" onclick="toggleLuz('blanca')">
-        LUZ BLANCA: OFF
-      </button>
-      <button id="btnLuzRoja" class="light-btn" onclick="toggleLuz('roja')">
-        LUZ ROJA: OFF
-      </button>
+    <!-- SECCIÓN 1: MENSAJES PERSONALIZADOS (A, B, C) -->
+    <div class="section-card">
+      <div class="section-title">Mensajes Personalizados</div>
+      
+      <!-- Mensaje A -->
+      <div class="msg-group">
+        <input type="text" id="inputA" placeholder="Texto A..." value="COMUNICACION GOMARA" onkeydown="detectarEnter(event, 'A', 'inputA', 'btnMsgA')">
+        <button class="btn-send" id="btnMsgA" onclick="enviarTextoPersonalizado('A', 'inputA', 'btnMsgA')">Enviar A</button>
+      </div>
+
+      <!-- Mensaje B -->
+      <div class="msg-group">
+        <input type="text" id="inputB" placeholder="Texto B..." value="COMUNICACION GOMARA" onkeydown="detectarEnter(event, 'B', 'inputB', 'btnMsgB')">
+        <button class="btn-send" id="btnMsgB" onclick="enviarTextoPersonalizado('B', 'inputB', 'btnMsgB')">Enviar B</button>
+      </div>
+
+      <!-- Mensaje C -->
+      <div class="msg-group">
+        <input type="text" id="inputC" placeholder="Texto C..." value="COMUNICACION GOMARA" onkeydown="detectarEnter(event, 'C', 'inputC', 'btnMsgC')">
+        <button class="btn-send" id="btnMsgC" onclick="enviarTextoPersonalizado('C', 'inputC', 'btnMsgC')">Enviar C</button>
+      </div>
+    </div>
+
+    <!-- SECCIÓN 2: MODOS FIJOS DEL CARTEL -->
+    <div class="section-card">
+      <div class="section-title">Modos de Cartel</div>
+      <div class="grid-buttons">
+        <button id="btn1" onclick="seleccionarModo('1', 'btn1')">5 SEGUNDOS</button>
+        <button id="btn2" onclick="seleccionarModo('2', 'btn2')">EN VIVO</button>
+        <button id="btn3" onclick="seleccionarModo('3', 'btn3')">PUBLICIDAD</button>
+        <button id="btn4" onclick="seleccionarModo('4', 'btn4')">INICIO</button>
+        <button id="btn5" onclick="seleccionarModo('5', 'btn5')">FIN</button>
+        <button id="btn6" onclick="seleccionarModo('6', 'btn6')">ESTUDIO A</button>
+        <button id="btn7" onclick="seleccionarModo('7', 'btn7')">ESTUDIO B</button>
+      </div>
+    </div>
+
+    <!-- SECCIÓN 3: CONTROL DE LUCES INDEPENDIENTE -->
+    <div class="section-card">
+      <div class="section-title">Control de Luces</div>
+      <div class="grid-buttons">
+        <button id="btnLuzBlanca" class="light-btn" onclick="toggleLuz('blanca')">
+          LUZ BLANCA: OFF
+        </button>
+        <button id="btnLuzRoja" class="light-btn" onclick="toggleLuz('roja')">
+          LUZ ROJA: OFF
+        </button>
+      </div>
     </div>
   </div>
 
   <script>
+    // --- CONTRASEÑA DE ACCESO ---
+    const CLAVE_CORRECTA = "gomara2026"; // Puedes cambiar esta contraseña por la que gustes
+
     const broker = "f451d2f10b9c484ba36dc859e45ca653.s1.eu.hivemq.cloud";
     const port = 8884;
     const topic = "gomara/control";
 
-    const clientID = "WebControl_" + Math.random().toString(16).substr(2, 8);
-    const client = new Paho.MQTT.Client(broker, port, clientID);
-
+    let client = null;
     let estadoLuzBlanca = false;
     let estadoLuzRoja = false;
 
-    client.onConnectionLost = onConnectionLost;
+    // Validación de Contraseña
+    function validarAcceso() {
+      const passIngresada = document.getElementById("passInput").value;
+      const errorMsg = document.getElementById("errorMsg");
 
-    client.connect({
-      useSSL: true,
-      userName: "radio_gomara",
-      password: "gomara2026",
-      onSuccess: onConnect,
-      onFailure: onFailure
-    });
+      if (passIngresada === CLAVE_CORRECTA) {
+        document.getElementById("loginScreen").style.display = "none";
+        document.getElementById("mainContent").style.display = "block";
+        iniciarConexionMQTT();
+      } else {
+        errorMsg.style.display = "block";
+        document.getElementById("passInput").value = "";
+      }
+    }
+
+    function detectarEnterLogin(event) {
+      if (event.key === "Enter" || event.keyCode === 13) {
+        event.preventDefault();
+        validarAcceso();
+      }
+    }
+
+    // Iniciar conexión MQTT únicamente tras iniciar sesión
+    function iniciarConexionMQTT() {
+      const clientID = "WebControl_" + Math.random().toString(16).substr(2, 8);
+      client = new Paho.MQTT.Client(broker, port, clientID);
+
+      client.onConnectionLost = onConnectionLost;
+
+      client.connect({
+        useSSL: true,
+        userName: "radio_gomara",
+        password: "gomara2026",
+        onSuccess: onConnect,
+        onFailure: onFailure
+      });
+    }
 
     function onConnect() {
       const statusDiv = document.getElementById("status");
@@ -243,7 +313,7 @@
     }
 
     function enviarComando(msg) {
-      if (client.isConnected()) {
+      if (client && client.isConnected()) {
         const message = new Paho.MQTT.Message(msg);
         message.destinationName = topic;
         client.send(message);
@@ -274,10 +344,9 @@
       }
     }
 
-    // Detecta la tecla Enter al escribir en los inputs
     function detectarEnter(event, prefijo, inputId, btnId) {
       if (event.key === "Enter" || event.keyCode === 13) {
-        event.preventDefault(); // Evita recargar la página o enviar un formulario
+        event.preventDefault();
         enviarTextoPersonalizado(prefijo, inputId, btnId);
       }
     }
