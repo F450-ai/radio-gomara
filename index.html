@@ -30,7 +30,7 @@
 
     .status-bar {
       font-size: 14px;
-      margin-bottom: 25px;
+      margin-bottom: 20px;
       padding: 6px 12px;
       border-radius: 20px;
       background-color: #333;
@@ -39,30 +39,15 @@
     .connected { color: #00E676; }
     .disconnected { color: #FF5252; }
 
-    .section-card {
-      background-color: #1E1E1E;
-      width: 100%;
-      max-width: 500px;
-      padding: 20px;
-      border-radius: 12px;
-      margin-bottom: 25px;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
-    }
-
-    .section-title {
-      font-size: 16px;
-      font-weight: bold;
-      margin-bottom: 15px;
-      color: #B0BEC5;
-      border-bottom: 1px solid #333;
-      padding-bottom: 8px;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-    }
-
+    /* PANTALLA DE LOGIN */
     #loginScreen {
       margin-top: 50px;
       text-align: center;
+      width: 100%;
+      max-width: 400px;
+      background-color: #1E1E1E;
+      padding: 20px;
+      border-radius: 12px;
     }
 
     .login-box {
@@ -78,10 +63,53 @@
       display: none;
     }
 
+    /* CONTENEDOR PRINCIPAL - DISEÑO ADAPTABLE (RESPONSIVE) */
     #mainContent {
       display: none;
       width: 100%;
-      max-width: 500px;
+      max-width: 1000px;
+    }
+
+    /* Estructura para Celular (por defecto: columna hacia abajo) */
+    .dashboard-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    /* DISEÑO PARA PC (Pantallas mayores a 768px) */
+    @media (min-width: 768px) {
+      .dashboard-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        grid-template-areas: 
+          "mensajes botones"
+          "luces luces"
+          "config config";
+        gap: 20px;
+      }
+      .card-mensajes { grid-area: mensajes; }
+      .card-botones  { grid-area: botones; }
+      .card-luces    { grid-area: luces; }
+      .card-config   { grid-area: config; }
+    }
+
+    .section-card {
+      background-color: #1E1E1E;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+    }
+
+    .section-title {
+      font-size: 16px;
+      font-weight: bold;
+      margin-bottom: 15px;
+      color: #B0BEC5;
+      border-bottom: 1px solid #333;
+      padding-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
     }
 
     .grid-buttons {
@@ -91,7 +119,7 @@
     }
 
     button {
-      padding: 14px;
+      padding: 12px;
       border: none;
       border-radius: 8px;
       font-size: 14px;
@@ -103,9 +131,7 @@
       border: 2px solid transparent;
     }
 
-    button:hover {
-      background-color: #3A3A3A;
-    }
+    button:hover { background-color: #3A3A3A; }
 
     button.active-mode {
       background-color: #00C853 !important;
@@ -114,10 +140,7 @@
       box-shadow: 0 0 10px rgba(0, 230, 118, 0.4);
     }
 
-    .light-btn {
-      background-color: #263238;
-      color: #ECEFF1;
-    }
+    .light-btn { background-color: #263238; color: #ECEFF1; }
 
     button.light-on-white {
       background-color: #FFFDE7 !important;
@@ -139,10 +162,6 @@
       margin-bottom: 12px;
     }
 
-    .msg-group:last-child {
-      margin-bottom: 0;
-    }
-
     input[type="text"], input[type="password"] {
       flex: 1;
       padding: 10px 12px;
@@ -158,31 +177,37 @@
       border-color: #00E676;
     }
 
-    .btn-save {
-      background-color: #455A64;
-      color: #FFF;
-      padding: 10px 12px;
-      font-size: 13px;
-    }
+    .btn-save { background-color: #455A64; color: #FFF; padding: 10px; font-size: 13px; }
     .btn-save:hover { background-color: #546E7A; }
 
-    .btn-send {
-      background-color: #2979FF;
-      color: #FFF;
-      padding: 10px 12px;
-      font-size: 13px;
-    }
+    .btn-send { background-color: #2979FF; color: #FFF; padding: 10px; font-size: 13px; }
     .btn-send:hover { background-color: #2962FF; }
+
+    /* Control deslizante de velocidad */
+    .slider-container {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .slider-container label {
+      font-size: 13px;
+      color: #aaa;
+    }
+    input[type="range"] {
+      width: 100%;
+      accent-color: #00E676;
+      cursor: pointer;
+    }
   </style>
 </head>
 <body>
 
   <h1>RADIO GOMARA</h1>
 
-  <!-- PANTALLA DE ACCESO / LOGIN -->
-  <div id="loginScreen" class="section-card">
+  <!-- LOGIN -->
+  <div id="loginScreen">
     <div class="section-title">Acceso Restringido</div>
-    <p style="font-size: 14px; color: #aaa;">Ingresa la contraseña para acceder al panel:</p>
+    <p style="font-size: 14px; color: #aaa;">Ingresa la contraseña para acceder:</p>
     <div class="login-box">
       <input type="password" id="passInput" placeholder="Contraseña..." onkeydown="detectarEnterLogin(event)">
       <button class="btn-send" onclick="validarAcceso()" style="padding: 10px;">Ingresar</button>
@@ -194,63 +219,69 @@
   <div id="mainContent">
     <div id="status" class="status-bar disconnected" style="text-align: center;">Estado: Desconectado</div>
 
-    <!-- SECCIÓN 1: MENSAJES PERSONALIZADOS (A, B, C) -->
-    <div class="section-card">
-      <div class="section-title">Mensajes Personalizados</div>
-      
-      <!-- Mensaje A -->
-      <div class="msg-group">
-        <input type="text" id="inputA" placeholder="Texto A..." oninput="guardarLocalYSilencioso('A', this.value)">
-        <button class="btn-save" title="Guarda el texto en el esclavo sin mostrarlo al aire" onclick="guardarMensaje('A', 'inputA')">Guardar</button>
-        <button class="btn-send" id="btnMsgA" title="Envía y muestra el mensaje al aire inmediatamente" onclick="enviarAlAire('A', 'inputA', 'btnMsgA')">Al Aire</button>
+    <div class="dashboard-grid">
+
+      <!-- 1. MENSAJES PERSONALIZADOS (Izquierda en PC) -->
+      <div class="section-card card-mensajes">
+        <div class="section-title">Mensajes Personalizados</div>
+        
+        <div class="msg-group">
+          <input type="text" id="inputA" placeholder="Texto A..." oninput="guardarLocalYSilencioso('A', this.value)">
+          <button class="btn-save" onclick="guardarMensaje('A', 'inputA')">Guardar</button>
+          <button class="btn-send" id="btnMsgA" onclick="enviarAlAire('A', 'inputA', 'btnMsgA')">Al Aire</button>
+        </div>
+
+        <div class="msg-group">
+          <input type="text" id="inputB" placeholder="Texto B..." oninput="guardarLocalYSilencioso('B', this.value)">
+          <button class="btn-save" onclick="guardarMensaje('B', 'inputB')">Guardar</button>
+          <button class="btn-send" id="btnMsgB" onclick="enviarAlAire('B', 'inputB', 'btnMsgB')">Al Aire</button>
+        </div>
+
+        <div class="msg-group">
+          <input type="text" id="inputC" placeholder="Texto C..." oninput="guardarLocalYSilencioso('C', this.value)">
+          <button class="btn-save" onclick="guardarMensaje('C', 'inputC')">Guardar</button>
+          <button class="btn-send" id="btnMsgC" onclick="enviarAlAire('C', 'inputC', 'btnMsgC')">Al Aire</button>
+        </div>
       </div>
 
-      <!-- Mensaje B -->
-      <div class="msg-group">
-        <input type="text" id="inputB" placeholder="Texto B..." oninput="guardarLocalYSilencioso('B', this.value)">
-        <button class="btn-save" title="Guarda el texto en el esclavo sin mostrarlo al aire" onclick="guardarMensaje('B', 'inputB')">Guardar</button>
-        <button class="btn-send" id="btnMsgB" title="Envía y muestra el mensaje al aire inmediatamente" onclick="enviarAlAire('B', 'inputB', 'btnMsgB')">Al Aire</button>
+      <!-- 2. MODOS Y CONFIGURACIÓN DEL CARTEL (Derecha en PC) -->
+      <div class="section-card card-botones">
+        <div class="section-title">Modos de Cartel</div>
+        <div class="grid-buttons" style="margin-bottom: 15px;">
+          <button id="btn1" onclick="seleccionarModo('1', 'btn1')">5 SEG</button>
+          <button id="btn2" onclick="seleccionarModo('2', 'btn2')">EN VIVO</button>
+          <button id="btn3" onclick="seleccionarModo('3', 'btn3')">PUBLICIDAD</button>
+          <button id="btn4" onclick="seleccionarModo('4', 'btn4')">INICIO</button>
+          <button id="btn5" onclick="seleccionarModo('5', 'btn5')">FIN</button>
+          <button id="btn6" onclick="seleccionarModo('6', 'btn6')">ESTUDIO A</button>
+          <button id="btn7" onclick="seleccionarModo('7', 'btn7')">ESTUDIO B</button>
+        </div>
+
+        <!-- Controles de Velocidad y Estático -->
+        <div class="section-title" style="margin-top: 15px;">Movimiento y Velocidad</div>
+        <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+          <button id="btnMov" class="btn-send" onclick="toggleEfectoTexto()" style="flex: 1;">Modo: Desplazamiento</button>
+        </div>
+        <div class="slider-container">
+          <label for="speedRange">Velocidad del texto: <span id="speedVal">25</span></label>
+          <input type="range" id="speedRange" min="5" max="80" value="25" oninput="cambiarVelocidad(this.value)">
+        </div>
       </div>
 
-      <!-- Mensaje C -->
-      <div class="msg-group">
-        <input type="text" id="inputC" placeholder="Texto C..." oninput="guardarLocalYSilencioso('C', this.value)">
-        <button class="btn-save" title="Guarda el texto en el esclavo sin mostrarlo al aire" onclick="guardarMensaje('C', 'inputC')">Guardar</button>
-        <button class="btn-send" id="btnMsgC" title="Envía y muestra el mensaje al aire inmediatamente" onclick="enviarAlAire('C', 'inputC', 'btnMsgC')">Al Aire</button>
+      <!-- 3. CONTROL DE LUCES (Abajo) -->
+      <div class="section-card card-luces">
+        <div class="section-title">Control de Luces</div>
+        <div class="grid-buttons">
+          <button id="btnLuzBlanca" class="light-btn" onclick="toggleLuz('blanca')">LUZ BLANCA: OFF</button>
+          <button id="btnLuzRoja" class="light-btn" onclick="toggleLuz('roja')">LUZ ROJA: OFF</button>
+        </div>
       </div>
-    </div>
 
-    <!-- SECCIÓN 2: MODOS FIJOS DEL CARTEL -->
-    <div class="section-card">
-      <div class="section-title">Modos de Cartel</div>
-      <div class="grid-buttons">
-        <button id="btn1" onclick="seleccionarModo('1', 'btn1')">5 SEGUNDOS</button>
-        <button id="btn2" onclick="seleccionarModo('2', 'btn2')">EN VIVO</button>
-        <button id="btn3" onclick="seleccionarModo('3', 'btn3')">PUBLICIDAD</button>
-        <button id="btn4" onclick="seleccionarModo('4', 'btn4')">INICIO</button>
-        <button id="btn5" onclick="seleccionarModo('5', 'btn5')">FIN</button>
-        <button id="btn6" onclick="seleccionarModo('6', 'btn6')">ESTUDIO A</button>
-        <button id="btn7" onclick="seleccionarModo('7', 'btn7')">ESTUDIO B</button>
-      </div>
-    </div>
-
-    <!-- SECCIÓN 3: CONTROL DE LUCES INDEPENDIENTE -->
-    <div class="section-card">
-      <div class="section-title">Control de Luces</div>
-      <div class="grid-buttons">
-        <button id="btnLuzBlanca" class="light-btn" onclick="toggleLuz('blanca')">
-          LUZ BLANCA: OFF
-        </button>
-        <button id="btnLuzRoja" class="light-btn" onclick="toggleLuz('roja')">
-          LUZ ROJA: OFF
-        </button>
-      </div>
     </div>
   </div>
 
   <script>
     const CLAVE_CORRECTA = "jubilacionmota65";
-
     const broker = "f451d2f10b9c484ba36dc859e45ca653.s1.eu.hivemq.cloud";
     const port = 8884;
     const topicControl = "gomara/control";
@@ -259,8 +290,8 @@
     let client = null;
     let estadoLuzBlanca = false;
     let estadoLuzRoja = false;
+    let esEstatico = false;
 
-    // Cargar textos guardados al iniciar la página
     window.onload = function() {
       document.getElementById("inputA").value = localStorage.getItem("msg_A") || "COMUNICACION GOMARA";
       document.getElementById("inputB").value = localStorage.getItem("msg_B") || "COMUNICACION GOMARA";
@@ -269,79 +300,44 @@
 
     function validarAcceso() {
       const passIngresada = document.getElementById("passInput").value;
-      const errorMsg = document.getElementById("errorMsg");
-
       if (passIngresada === CLAVE_CORRECTA) {
         document.getElementById("loginScreen").style.display = "none";
         document.getElementById("mainContent").style.display = "block";
         iniciarConexionMQTT();
       } else {
-        errorMsg.style.display = "block";
+        document.getElementById("errorMsg").style.display = "block";
         document.getElementById("passInput").value = "";
       }
     }
 
     function detectarEnterLogin(event) {
-      if (event.key === "Enter" || event.keyCode === 13) {
-        event.preventDefault();
-        validarAcceso();
-      }
+      if (event.key === "Enter") validarAcceso();
     }
 
     function iniciarConexionMQTT() {
       const clientID = "WebControl_" + Math.random().toString(16).substr(2, 8);
       client = new Paho.MQTT.Client(broker, port, clientID);
-
-      client.onConnectionLost = onConnectionLost;
-      client.onMessageArrived = onMessageArrived;
-
-      client.connect({
-        useSSL: true,
-        userName: "radio_gomara",
-        password: "gomara2026",
-        onSuccess: onConnect,
-        onFailure: onFailure
-      });
-    }
-
-    function onConnect() {
-      const statusDiv = document.getElementById("status");
-      statusDiv.innerHTML = "Estado: Conectado a la Nube";
-      statusDiv.className = "status-bar connected";
-      client.subscribe(topicEstado);
-    }
-
-    function onFailure(response) {
-      const statusDiv = document.getElementById("status");
-      statusDiv.innerHTML = "Error de conexión: " + response.errorMessage;
-      statusDiv.className = "status-bar disconnected";
-    }
-
-    function onConnectionLost(responseObject) {
-      if (responseObject.errorCode !== 0) {
-        const statusDiv = document.getElementById("status");
-        statusDiv.innerHTML = "Conexión perdida. Reintentando...";
-        statusDiv.className = "status-bar disconnected";
-      }
-    }
-
-    function onMessageArrived(message) {
-      const payload = message.payloadString;
-      if (message.destinationName === topicEstado) {
-        if (payload === "W") {
-          estadoLuzBlanca = true;
-          actualizarUIFisicaLuz('blanca', true);
-        } else if (payload === "w") {
-          estadoLuzBlanca = false;
-          actualizarUIFisicaLuz('blanca', false);
-        } else if (payload === "R") {
-          estadoLuzRoja = true;
-          actualizarUIFisicaLuz('roja', true);
-        } else if (payload === "r") {
-          estadoLuzRoja = false;
-          actualizarUIFisicaLuz('roja', false);
+      client.onConnectionLost = () => {
+        document.getElementById("status").innerHTML = "Conexión perdida. Reintentando...";
+        document.getElementById("status").className = "status-bar disconnected";
+      };
+      client.onMessageArrived = (message) => {
+        if (message.destinationName === topicEstado) {
+          const payload = message.payloadString;
+          if (payload === "W") { estadoLuzBlanca = true; actualizarUIFisicaLuz('blanca', true); }
+          else if (payload === "w") { estadoLuzBlanca = false; actualizarUIFisicaLuz('blanca', false); }
+          else if (payload === "R") { estadoLuzRoja = true; actualizarUIFisicaLuz('roja', true); }
+          else if (payload === "r") { estadoLuzRoja = false; actualizarUIFisicaLuz('roja', false); }
         }
-      }
+      };
+      client.connect({
+        useSSL: true, userName: "radio_gomara", password: "gomara2026",
+        onSuccess: () => {
+          document.getElementById("status").innerHTML = "Estado: Conectado a la Nube";
+          document.getElementById("status").className = "status-bar connected";
+          client.subscribe(topicEstado);
+        }
+      });
     }
 
     function enviarComando(msg) {
@@ -349,68 +345,56 @@
         const message = new Paho.MQTT.Message(msg);
         message.destinationName = topicControl;
         client.send(message);
-      } else {
-        alert("No hay conexión con la nube.");
       }
     }
 
-    // Guarda automáticamente en el navegador al escribir (solo escribiendo ya queda guardado)
     function guardarLocalYSilencioso(prefijo, texto) {
       localStorage.setItem("msg_" + prefijo, texto);
     }
 
-    // Botón "Guardar": Envía el texto al esclavo para que lo guarde en memoria SIN cambiar la pantalla actual
     function guardarMensaje(prefijo, inputId) {
       const texto = document.getElementById(inputId).value.trim();
-      if (texto.length > 0) {
-        enviarComando("TEXT_" + prefijo + ":" + texto);
-        alert("Mensaje " + prefijo + " guardado en el sistema.");
-      }
+      if (texto.length > 0) enviarComando("TEXT_" + prefijo + ":" + texto);
     }
 
-    // Botón "Al Aire": Envía el texto y hace que la matriz lo muestre de inmediato
     function enviarAlAire(prefijo, inputId, btnId) {
       const texto = document.getElementById(inputId).value.trim();
       if (texto.length > 0) {
-        limpiarSeleccionModos();
+        document.querySelectorAll('.grid-buttons button, .btn-send').forEach(b => b.classList.remove('active-mode'));
         document.getElementById(btnId).classList.add('active-mode');
         enviarComando(prefijo + ":" + texto);
       }
     }
 
-    function limpiarSeleccionModos() {
-      const botones = document.querySelectorAll('.grid-buttons button, .btn-send');
-      botones.forEach(btn => {
-        btn.classList.remove('active-mode');
-      });
-    }
-
     function seleccionarModo(cmd, btnId) {
-      limpiarSeleccionModos();
+      document.querySelectorAll('.grid-buttons button, .btn-send').forEach(b => b.classList.remove('active-mode'));
       document.getElementById(btnId).classList.add('active-mode');
       enviarComando(cmd);
     }
 
-    function actualizarUIFisicaLuz(tipo, encendido) {
-      if (tipo === 'blanca') {
-        const btn = document.getElementById('btnLuzBlanca');
-        if (encendido) {
-          btn.innerHTML = "LUZ BLANCA: ON";
-          btn.className = "light-btn light-on-white";
-        } else {
-          btn.innerHTML = "LUZ BLANCA: OFF";
-          btn.className = "light-btn";
-        }
-      } else if (tipo === 'roja') {
-        const btn = document.getElementById('btnLuzRoja');
-        if (encendido) {
-          btn.innerHTML = "LUZ ROJA: ON";
-          btn.className = "light-btn light-on-red";
-        } else {
-          btn.innerHTML = "LUZ ROJA: OFF";
-          btn.className = "light-btn";
-        }
+    function cambiarVelocidad(val) {
+      document.getElementById("speedVal").innerText = val;
+      enviarComando("SPEED:" + val);
+    }
+
+    function toggleEfectoTexto() {
+      esEstatico = !esEstatico;
+      const btn = document.getElementById("btnMov");
+      if (esEstatico) {
+        btn.innerText = "Modo: Estático";
+        btn.style.backgroundColor = "#FF9800";
+        enviarComando("EFFECT:STATIC");
+      } else {
+        btn.innerText = "Modo: Desplazamiento";
+        btn.style.backgroundColor = "#2979FF";
+        enviarComando("EFFECT:SCROLL");
       }
+    }
+
+    function actualizarUIFisicaLuz(tipo, encendido) {
+      const btn = document.getElementById(tipo === 'blanca' ? 'btnLuzBlanca' : 'btnLuzRoja');
+      btn.innerHTML = (tipo === 'blanca' ? "LUZ BLANCA: " : "LUZ ROJA: ") + (encendido ? "ON" : "OFF");
+      btn.className = "light-btn " + (encendido ? (tipo === 'blanca' ? "light-on-white" : "light-on-red") : "");
     }
 
     function toggleLuz(tipo) {
@@ -418,7 +402,7 @@
         estadoLuzBlanca = !estadoLuzBlanca;
         actualizarUIFisicaLuz('blanca', estadoLuzBlanca);
         enviarComando(estadoLuzBlanca ? "W" : "w");
-      } else if (tipo === 'roja') {
+      } else {
         estadoLuzRoja = !estadoLuzRoja;
         actualizarUIFisicaLuz('roja', estadoLuzRoja);
         enviarComando(estadoLuzRoja ? "R" : "r");
