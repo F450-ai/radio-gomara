@@ -23,10 +23,11 @@
       min-height: 100vh;
     }
 
+    /* Contenedor del título solo visible al estar logueado */
     .header-container {
       width: 100%;
       max-width: 1000px;
-      display: flex;
+      display: none; /* Oculto por defecto hasta loguearse */
       justify-content: space-between;
       align-items: center;
       margin-bottom: 10px;
@@ -34,6 +35,15 @@
 
     h1 {
       color: #00E676;
+    }
+
+    /* Título grande y centrado para la pantalla de Login */
+    #loginTitle {
+      font-size: 32px;
+      color: #00E676;
+      margin-bottom: 20px;
+      text-align: center;
+      letter-spacing: 2px;
     }
 
     .btn-logout {
@@ -44,7 +54,6 @@
       border-radius: 6px;
       border: none;
       cursor: pointer;
-      display: none; /* Oculto por defecto hasta loguearse */
     }
     .btn-logout:hover { background-color: #B71C1C; }
 
@@ -63,13 +72,21 @@
     .disconnected { color: #FF5252; }
 
     #loginScreen {
-      margin-top: 50px;
+      margin-top: 40px;
       text-align: center;
       width: 100%;
       max-width: 400px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .login-card {
       background-color: #1E1E1E;
-      padding: 20px;
+      padding: 25px;
       border-radius: 12px;
+      width: 100%;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
     }
 
     .login-box {
@@ -206,19 +223,23 @@
 </head>
 <body>
 
-  <div class="header-container">
+  <!-- Título superior (solo aparece cuando ya estás dentro del panel) -->
+  <div id="headerContainer" class="header-container">
     <h1>RADIO GOMARA</h1>
-    <button id="btnLogout" class="btn-logout" onclick="cerrarSesion()">Cerrar Sesión</button>
+    <button class="btn-logout" onclick="cerrarSesion()">Cerrar Sesión</button>
   </div>
 
-  <!-- LOGIN -->
+  <!-- PANTALLA DE LOGIN -->
   <div id="loginScreen">
-    <div class="section-title">Acceso Restringido</div>
-    <p style="font-size: 14px; color: #aaa;">Ingresa la contraseña para acceder:</p>
-    <div class="login-box">
-      <input type="password" id="passInput" placeholder="Contraseña..." onkeydown="detectarEnterLogin(event)">
-      <button class="btn-send" onclick="validarAcceso()" style="padding: 10px;">Ingresar</button>
-      <div id="errorMsg" class="error-msg">Contraseña incorrecta</div>
+    <div id="loginTitle">RADIO GOMARA</div>
+    <div class="login-card">
+      <div class="section-title">Acceso Restringido</div>
+      <p style="font-size: 14px; color: #aaa; margin-top: 5px;">Ingresa la contraseña:</p>
+      <div class="login-box">
+        <input type="password" id="passInput" placeholder="Contraseña..." onkeydown="detectarEnterLogin(event)">
+        <button class="btn-send" onclick="validarAcceso()" style="padding: 10px;">Ingresar</button>
+        <div id="errorMsg" class="error-msg">Contraseña incorrecta</div>
+      </div>
     </div>
   </div>
 
@@ -329,7 +350,7 @@
     function validarAcceso() {
       const passIngresada = document.getElementById("passInput").value;
       if (passIngresada === CLAVE_CORRECTA) {
-        localStorage.setItem("radio_auth", "true"); // Guarda la sesión
+        localStorage.setItem("radio_auth", "true");
         activarSesion();
       } else {
         document.getElementById("errorMsg").style.display = "block";
@@ -339,14 +360,14 @@
 
     function activarSesion() {
       document.getElementById("loginScreen").style.display = "none";
+      document.getElementById("headerContainer").style.display = "flex"; // Muestra el título a la izquierda
       document.getElementById("mainContent").style.display = "block";
-      document.getElementById("btnLogout").style.display = "block";
       iniciarConexionMQTT();
     }
 
     function cerrarSesion() {
-      localStorage.removeItem("radio_auth"); // Borra la sesión guardada
-      location.reload(); // Recarga la página para volver al login
+      localStorage.removeItem("radio_auth");
+      location.reload();
     }
 
     function detectarEnterLogin(event) {
