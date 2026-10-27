@@ -39,7 +39,6 @@
     .connected { color: #00E676; }
     .disconnected { color: #FF5252; }
 
-    /* PANTALLA DE LOGIN */
     #loginScreen {
       margin-top: 50px;
       text-align: center;
@@ -63,35 +62,30 @@
       display: none;
     }
 
-    /* CONTENEDOR PRINCIPAL - DISEÑO ADAPTABLE (RESPONSIVE) */
     #mainContent {
       display: none;
       width: 100%;
       max-width: 1000px;
     }
 
-    /* Estructura para Celular (por defecto: columna hacia abajo) */
     .dashboard-grid {
       display: flex;
       flex-direction: column;
       gap: 20px;
     }
 
-    /* DISEÑO PARA PC (Pantallas mayores a 768px) */
     @media (min-width: 768px) {
       .dashboard-grid {
         display: grid;
         grid-template-columns: 1fr 1fr;
         grid-template-areas: 
           "mensajes botones"
-          "luces luces"
-          "config config";
+          "luces luces";
         gap: 20px;
       }
       .card-mensajes { grid-area: mensajes; }
       .card-botones  { grid-area: botones; }
       .card-luces    { grid-area: luces; }
-      .card-config   { grid-area: config; }
     }
 
     .section-card {
@@ -183,15 +177,17 @@
     .btn-send { background-color: #2979FF; color: #FFF; padding: 10px; font-size: 13px; }
     .btn-send:hover { background-color: #2962FF; }
 
-    /* Control deslizante de velocidad */
     .slider-container {
       display: flex;
       flex-direction: column;
       gap: 8px;
+      margin-top: 15px;
     }
     .slider-container label {
       font-size: 13px;
       color: #aaa;
+      display: flex;
+      justify-content: space-between;
     }
     input[type="range"] {
       width: 100%;
@@ -221,7 +217,7 @@
 
     <div class="dashboard-grid">
 
-      <!-- 1. MENSAJES PERSONALIZADOS (Izquierda en PC) -->
+      <!-- 1. MENSAJES -->
       <div class="section-card card-mensajes">
         <div class="section-title">Mensajes Personalizados</div>
         
@@ -244,10 +240,10 @@
         </div>
       </div>
 
-      <!-- 2. MODOS Y CONFIGURACIÓN DEL CARTEL (Derecha en PC) -->
+      <!-- 2. MODOS Y VELOCIDAD -->
       <div class="section-card card-botones">
         <div class="section-title">Modos de Cartel</div>
-        <div class="grid-buttons" style="margin-bottom: 15px;">
+        <div class="grid-buttons" style="margin-bottom: 10px;">
           <button id="btn1" onclick="seleccionarModo('1', 'btn1')">5 SEG</button>
           <button id="btn2" onclick="seleccionarModo('2', 'btn2')">EN VIVO</button>
           <button id="btn3" onclick="seleccionarModo('3', 'btn3')">PUBLICIDAD</button>
@@ -257,18 +253,17 @@
           <button id="btn7" onclick="seleccionarModo('7', 'btn7')">ESTUDIO B</button>
         </div>
 
-        <!-- Controles de Velocidad y Estático -->
-        <div class="section-title" style="margin-top: 15px;">Movimiento y Velocidad</div>
-        <div style="display: flex; gap: 10px; margin-bottom: 15px;">
-          <button id="btnMov" class="btn-send" onclick="toggleEfectoTexto()" style="flex: 1;">Modo: Desplazamiento</button>
-        </div>
+        <!-- Barra Única de Velocidad / Estático -->
         <div class="slider-container">
-          <label for="speedRange">Velocidad del texto: <span id="speedVal">25</span></label>
-          <input type="range" id="speedRange" min="5" max="80" value="25" oninput="cambiarVelocidad(this.value)">
+          <label>
+            <span>Velocidad de Movimiento</span>
+            <span id="speedLabel" style="color: #00E676; font-weight: bold;">Normal</span>
+          </label>
+          <input type="range" id="speedRange" min="15" max="80" value="25" oninput="cambiarVelocidad(this.value)">
         </div>
       </div>
 
-      <!-- 3. CONTROL DE LUCES (Abajo) -->
+      <!-- 3. LUCES -->
       <div class="section-card card-luces">
         <div class="section-title">Control de Luces</div>
         <div class="grid-buttons">
@@ -290,7 +285,6 @@
     let client = null;
     let estadoLuzBlanca = false;
     let estadoLuzRoja = false;
-    let esEstatico = false;
 
     window.onload = function() {
       document.getElementById("inputA").value = localStorage.getItem("msg_A") || "COMUNICACION GOMARA";
@@ -373,22 +367,20 @@
     }
 
     function cambiarVelocidad(val) {
-      document.getElementById("speedVal").innerText = val;
-      enviarComando("SPEED:" + val);
-    }
-
-    function toggleEfectoTexto() {
-      esEstatico = !esEstatico;
-      const btn = document.getElementById("btnMov");
-      if (esEstatico) {
-        btn.innerText = "Modo: Estático";
-        btn.style.backgroundColor = "#FF9800";
-        enviarComando("EFFECT:STATIC");
+      let numVal = parseInt(val);
+      let label = document.getElementById("speedLabel");
+      
+      if (numVal >= 75) {
+        label.innerText = "Estático (Fijo)";
+      } else if (numVal >= 45) {
+        label.innerText = "Lento";
+      } else if (numVal >= 25) {
+        label.innerText = "Normal";
       } else {
-        btn.innerText = "Modo: Desplazamiento";
-        btn.style.backgroundColor = "#2979FF";
-        enviarComando("EFFECT:SCROLL");
+        label.innerText = "Rápido";
       }
+
+      enviarComando("SPEED:" + numVal);
     }
 
     function actualizarUIFisicaLuz(tipo, encendido) {
