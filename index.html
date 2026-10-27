@@ -176,6 +176,9 @@
 
     .btn-send { background-color: #2979FF; color: #FFF; padding: 10px; font-size: 13px; }
     .btn-send:hover { background-color: #2962FF; }
+
+    .btn-quick { background-color: #00897B; color: #FFF; padding: 10px 14px; font-size: 13px; }
+    .btn-quick:hover { background-color: #00796B; }
   </style>
 </head>
 <body>
@@ -203,22 +206,45 @@
       <div class="section-card card-mensajes">
         <div class="section-title">Mensajes Personalizados</div>
         
+        <!-- A -->
         <div class="msg-group">
           <input type="text" id="inputA" placeholder="Texto A..." oninput="guardarLocalYSilencioso('A', this.value)">
           <button class="btn-save" onclick="guardarMensaje('A', 'inputA')">Guardar</button>
           <button class="btn-send" id="btnMsgA" onclick="enviarAlAire('A', 'inputA', 'btnMsgA')">Al Aire</button>
         </div>
 
+        <!-- B -->
         <div class="msg-group">
           <input type="text" id="inputB" placeholder="Texto B..." oninput="guardarLocalYSilencioso('B', this.value)">
           <button class="btn-save" onclick="guardarMensaje('B', 'inputB')">Guardar</button>
           <button class="btn-send" id="btnMsgB" onclick="enviarAlAire('B', 'inputB', 'btnMsgB')">Al Aire</button>
         </div>
 
+        <!-- C -->
         <div class="msg-group">
           <input type="text" id="inputC" placeholder="Texto C..." oninput="guardarLocalYSilencioso('C', this.value)">
           <button class="btn-save" onclick="guardarMensaje('C', 'inputC')">Guardar</button>
           <button class="btn-send" id="btnMsgC" onclick="enviarAlAire('C', 'inputC', 'btnMsgC')">Al Aire</button>
+        </div>
+
+        <div class="section-title" style="margin-top: 20px; font-size: 14px;">Mensajes Rápidos (Presets)</div>
+
+        <!-- D -->
+        <div class="msg-group">
+          <input type="text" id="inputD" placeholder="Rápido 1..." oninput="guardarLocalYSilencioso('D', this.value)">
+          <button class="btn-quick" id="btnMsgD" onclick="enviarAlAire('D', 'inputD', 'btnMsgD')">Al Aire</button>
+        </div>
+
+        <!-- E -->
+        <div class="msg-group">
+          <input type="text" id="inputE" placeholder="Rápido 2..." oninput="guardarLocalYSilencioso('E', this.value)">
+          <button class="btn-quick" id="btnMsgE" onclick="enviarAlAire('E', 'inputE', 'btnMsgE')">Al Aire</button>
+        </div>
+
+        <!-- F -->
+        <div class="msg-group">
+          <input type="text" id="inputF" placeholder="Rápido 3..." oninput="guardarLocalYSilencioso('F', this.value)">
+          <button class="btn-quick" id="btnMsgF" onclick="enviarAlAire('F', 'inputF', 'btnMsgF')">Al Aire</button>
         </div>
       </div>
 
@@ -263,6 +289,9 @@
       document.getElementById("inputA").value = localStorage.getItem("msg_A") || "";
       document.getElementById("inputB").value = localStorage.getItem("msg_B") || "";
       document.getElementById("inputC").value = localStorage.getItem("msg_C") || "";
+      document.getElementById("inputD").value = localStorage.getItem("msg_D") || "";
+      document.getElementById("inputE").value = localStorage.getItem("msg_E") || "";
+      document.getElementById("inputF").value = localStorage.getItem("msg_F") || "";
     };
 
     function validarAcceso() {
@@ -326,13 +355,13 @@
 
     function enviarAlAire(prefijo, inputId, btnId) {
       const texto = document.getElementById(inputId).value;
-      document.querySelectorAll('.grid-buttons button, .btn-send').forEach(b => b.classList.remove('active-mode'));
+      document.querySelectorAll('.dashboard-grid button, .btn-send, .btn-quick').forEach(b => b.classList.remove('active-mode'));
       document.getElementById(btnId).classList.add('active-mode');
       enviarComando(prefijo + ":" + texto);
     }
 
     function seleccionarModo(cmd, btnId) {
-      document.querySelectorAll('.grid-buttons button, .btn-send').forEach(b => b.classList.remove('active-mode'));
+      document.querySelectorAll('.dashboard-grid button, .btn-send, .btn-quick').forEach(b => b.classList.remove('active-mode'));
       document.getElementById(btnId).classList.add('active-mode');
       enviarComando(cmd);
     }
