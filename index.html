@@ -23,10 +23,30 @@
       min-height: 100vh;
     }
 
+    .header-container {
+      width: 100%;
+      max-width: 1000px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
     h1 {
-      margin-bottom: 5px;
       color: #00E676;
     }
+
+    .btn-logout {
+      background-color: #D50000;
+      color: #FFF;
+      padding: 6px 12px;
+      font-size: 12px;
+      border-radius: 6px;
+      border: none;
+      cursor: pointer;
+      display: none; /* Oculto por defecto hasta loguearse */
+    }
+    .btn-logout:hover { background-color: #B71C1C; }
 
     .status-bar {
       font-size: 14px;
@@ -34,6 +54,9 @@
       padding: 6px 12px;
       border-radius: 20px;
       background-color: #333;
+      width: 100%;
+      max-width: 1000px;
+      text-align: center;
     }
 
     .connected { color: #00E676; }
@@ -183,7 +206,10 @@
 </head>
 <body>
 
-  <h1>RADIO GOMARA</h1>
+  <div class="header-container">
+    <h1>RADIO GOMARA</h1>
+    <button id="btnLogout" class="btn-logout" onclick="cerrarSesion()">Cerrar Sesión</button>
+  </div>
 
   <!-- LOGIN -->
   <div id="loginScreen">
@@ -198,7 +224,7 @@
 
   <!-- PANEL PRINCIPAL -->
   <div id="mainContent">
-    <div id="status" class="status-bar disconnected" style="text-align: center;">Estado: Desconectado</div>
+    <div id="status" class="status-bar disconnected">Estado: Desconectado</div>
 
     <div class="dashboard-grid">
 
@@ -286,24 +312,41 @@
     let estadoLuzRoja = false;
 
     window.onload = function() {
+      // Cargar textos guardados
       document.getElementById("inputA").value = localStorage.getItem("msg_A") || "";
       document.getElementById("inputB").value = localStorage.getItem("msg_B") || "";
       document.getElementById("inputC").value = localStorage.getItem("msg_C") || "";
       document.getElementById("inputD").value = localStorage.getItem("msg_D") || "";
       document.getElementById("inputE").value = localStorage.getItem("msg_E") || "";
       document.getElementById("inputF").value = localStorage.getItem("msg_F") || "";
+
+      // Verificar si ya estaba autenticado anteriormente
+      if (localStorage.getItem("radio_auth") === "true") {
+        activarSesion();
+      }
     };
 
     function validarAcceso() {
       const passIngresada = document.getElementById("passInput").value;
       if (passIngresada === CLAVE_CORRECTA) {
-        document.getElementById("loginScreen").style.display = "none";
-        document.getElementById("mainContent").style.display = "block";
-        iniciarConexionMQTT();
+        localStorage.setItem("radio_auth", "true"); // Guarda la sesión
+        activarSesion();
       } else {
         document.getElementById("errorMsg").style.display = "block";
         document.getElementById("passInput").value = "";
       }
+    }
+
+    function activarSesion() {
+      document.getElementById("loginScreen").style.display = "none";
+      document.getElementById("mainContent").style.display = "block";
+      document.getElementById("btnLogout").style.display = "block";
+      iniciarConexionMQTT();
+    }
+
+    function cerrarSesion() {
+      localStorage.removeItem("radio_auth"); // Borra la sesión guardada
+      location.reload(); // Recarga la página para volver al login
     }
 
     function detectarEnterLogin(event) {
