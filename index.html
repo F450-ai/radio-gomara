@@ -262,9 +262,9 @@
     let estadoLuzRoja = false;
 
     window.onload = function() {
-      document.getElementById("inputA").value = localStorage.getItem("msg_A") || "COMUNICACION GOMARA";
-      document.getElementById("inputB").value = localStorage.getItem("msg_B") || "COMUNICACION GOMARA";
-      document.getElementById("inputC").value = localStorage.getItem("msg_C") || "COMUNICACION GOMARA";
+      document.getElementById("inputA").value = localStorage.getItem("msg_A") || "";
+      document.getElementById("inputB").value = localStorage.getItem("msg_B") || "";
+      document.getElementById("inputC").value = localStorage.getItem("msg_C") || "";
     };
 
     function validarAcceso() {
@@ -322,17 +322,15 @@
     }
 
     function guardarMensaje(prefijo, inputId) {
-      const texto = document.getElementById(inputId).value.trim();
-      if (texto.length > 0) enviarComando("TEXT_" + prefijo + ":" + texto);
+      const texto = document.getElementById(inputId).value; // Permite vacío
+      enviarComando("TEXT_" + prefijo + ":" + texto);
     }
 
     function enviarAlAire(prefijo, inputId, btnId) {
-      const texto = document.getElementById(inputId).value.trim();
-      if (texto.length > 0) {
-        document.querySelectorAll('.grid-buttons button, .btn-send').forEach(b => b.classList.remove('active-mode'));
-        document.getElementById(btnId).classList.add('active-mode');
-        enviarComando(prefijo + ":" + texto);
-      }
+      const texto = document.getElementById(inputId).value; // Permite vacío
+      document.querySelectorAll('.grid-buttons button, .btn-send').forEach(b => b.classList.remove('active-mode'));
+      document.getElementById(btnId).classList.add('active-mode');
+      enviarComando(prefijo + ":" + texto);
     }
 
     function seleccionarModo(cmd, btnId) {
