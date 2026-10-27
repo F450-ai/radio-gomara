@@ -243,18 +243,17 @@
   </div>
 
   <script>
-    // --- CONTRASEÑA DE ACCESO ---
-    const CLAVE_CORRECTA = "jubilacionmota65"; // Puedes cambiar esta contraseña por la que gustes
+    const CLAVE_CORRECTA = "jubilacionmota65";
 
     const broker = "f451d2f10b9c484ba36dc859e45ca653.s1.eu.hivemq.cloud";
     const port = 8884;
-    const topic = "gomara/control";
+    const topicControl = "gomara/control";
+    const topicEstado = "gomara/estado";
 
     let client = null;
     let estadoLuzBlanca = false;
     let estadoLuzRoja = false;
 
-    // Validación de Contraseña
     function validarAcceso() {
       const passIngresada = document.getElementById("passInput").value;
       const errorMsg = document.getElementById("errorMsg");
@@ -276,12 +275,12 @@
       }
     }
 
-    // Iniciar conexión MQTT únicamente tras iniciar sesión
     function iniciarConexionMQTT() {
       const clientID = "WebControl_" + Math.random().toString(16).substr(2, 8);
       client = new Paho.MQTT.Client(broker, port, clientID);
 
       client.onConnectionLost = onConnectionLost;
+      client.onMessageArrived = onMessageArrived;
 
       client.connect({
         useSSL: true,
@@ -296,6 +295,9 @@
       const statusDiv = document.getElementById("status");
       statusDiv.innerHTML = "Estado: Conectado a la Nube";
       statusDiv.className = "status-bar connected";
+      
+      // Suscribirse al tópico de estado para enterarse si el Maestro prende las luces
+      client.subscribe(topicEstado);
     }
 
     function onFailure(response) {
@@ -312,10 +314,30 @@
       }
     }
 
+    // Recibir mensajes desde el broker (cuando el esclavo notifica cambios de luces)
+    function onMessageArrived(message) {
+      const payload = message.payloadString;
+      if (message.destinationName === topicEstado) {
+        if (payload === "W") {
+          estadoLuzBlanca = true;
+          actualizarUIFisicaLuz('blanca', true);
+        } else if (payload === "w") {
+          estadoLuzBlanca = false;
+          actualizarUIFisicaLuz('blanca', false);
+        } else if (payload === "R") {
+          estadoLuzRoja = true;
+          actualizarUIFisicaLuz('roja', true);
+        } else if (payload === "r") {
+          estadoLuzRoja = false;
+          actualizarUIFisicaLuz('roja', false);
+        }
+      }
+    }
+
     function enviarComando(msg) {
       if (client && client.isConnected()) {
         const message = new Paho.MQTT.Message(msg);
-        message.destinationName = topic;
+        message.destinationName = topicControl;
         client.send(message);
       } else {
         alert("No hay conexión con la nube.");
@@ -351,31 +373,38 @@
       }
     }
 
-    function toggleLuz(tipo) {
+    // Actualiza visualmente los botones sin volver a enviar comandos MQTT en bucle
+    function actualizarUIFisicaLuz(tipo, encendido) {
       if (tipo === 'blanca') {
-        estadoLuzBlanca = !estadoLuzBlanca;
         const btn = document.getElementById('btnLuzBlanca');
-        if (estadoLuzBlanca) {
+        if (encendido) {
           btn.innerHTML = "LUZ BLANCA: ON";
           btn.className = "light-btn light-on-white";
-          enviarComando("W");
         } else {
           btn.innerHTML = "LUZ BLANCA: OFF";
           btn.className = "light-btn";
-          enviarComando("w");
         }
       } else if (tipo === 'roja') {
-        estadoLuzRoja = !estadoLuzRoja;
         const btn = document.getElementById('btnLuzRoja');
-        if (estadoLuzRoja) {
+        if (encendido) {
           btn.innerHTML = "LUZ ROJA: ON";
           btn.className = "light-btn light-on-red";
-          enviarComando("R");
         } else {
           btn.innerHTML = "LUZ ROJA: OFF";
           btn.className = "light-btn";
-          enviarComando("r");
         }
+      }
+    }
+
+    function toggleLuz(tipo) {
+      if (tipo === 'blanca') {
+        estadoLuzBlanca = !estadoLuzBlanca;
+        actualizarUIFisicaLuz('blanca', estadoLuzBlanca);
+        enviarComando(estadoLuzBlanca ? "W" : "w");
+      } else if (tipo === 'roja') {
+        estadoLuzRoja = !estadoLuzRoja;
+        actualizarUIFisicaLuz('roja', estadoLuzRoja);
+        enviarComando(estadoLuzRoja ? "R" : "r");
       }
     }
   </script>
