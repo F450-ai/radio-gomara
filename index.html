@@ -68,12 +68,14 @@
       max-width: 1000px;
     }
 
+    /* Estructura para Celular (por defecto: columna hacia abajo) */
     .dashboard-grid {
       display: flex;
       flex-direction: column;
       gap: 20px;
     }
 
+    /* DISEÑO PARA PC (Pantallas mayores a 768px) */
     @media (min-width: 768px) {
       .dashboard-grid {
         display: grid;
@@ -176,24 +178,6 @@
 
     .btn-send { background-color: #2979FF; color: #FFF; padding: 10px; font-size: 13px; }
     .btn-send:hover { background-color: #2962FF; }
-
-    .slider-container {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      margin-top: 15px;
-    }
-    .slider-container label {
-      font-size: 13px;
-      color: #aaa;
-      display: flex;
-      justify-content: space-between;
-    }
-    input[type="range"] {
-      width: 100%;
-      accent-color: #00E676;
-      cursor: pointer;
-    }
   </style>
 </head>
 <body>
@@ -217,7 +201,7 @@
 
     <div class="dashboard-grid">
 
-      <!-- 1. MENSAJES -->
+      <!-- 1. MENSAJES (Izquierda en PC) -->
       <div class="section-card card-mensajes">
         <div class="section-title">Mensajes Personalizados</div>
         
@@ -240,10 +224,10 @@
         </div>
       </div>
 
-      <!-- 2. MODOS Y VELOCIDAD -->
+      <!-- 2. MODOS DE CARTEL (Derecha en PC) -->
       <div class="section-card card-botones">
         <div class="section-title">Modos de Cartel</div>
-        <div class="grid-buttons" style="margin-bottom: 10px;">
+        <div class="grid-buttons">
           <button id="btn1" onclick="seleccionarModo('1', 'btn1')">5 SEG</button>
           <button id="btn2" onclick="seleccionarModo('2', 'btn2')">EN VIVO</button>
           <button id="btn3" onclick="seleccionarModo('3', 'btn3')">PUBLICIDAD</button>
@@ -252,18 +236,9 @@
           <button id="btn6" onclick="seleccionarModo('6', 'btn6')">ESTUDIO A</button>
           <button id="btn7" onclick="seleccionarModo('7', 'btn7')">ESTUDIO B</button>
         </div>
-
-        <!-- Barra Única de Velocidad / Estático -->
-        <div class="slider-container">
-          <label>
-            <span>Velocidad de Movimiento</span>
-            <span id="speedLabel" style="color: #00E676; font-weight: bold;">Normal</span>
-          </label>
-          <input type="range" id="speedRange" min="15" max="80" value="25" oninput="cambiarVelocidad(this.value)">
-        </div>
       </div>
 
-      <!-- 3. LUCES -->
+      <!-- 3. LUCES (Abajo) -->
       <div class="section-card card-luces">
         <div class="section-title">Control de Luces</div>
         <div class="grid-buttons">
@@ -364,23 +339,6 @@
       document.querySelectorAll('.grid-buttons button, .btn-send').forEach(b => b.classList.remove('active-mode'));
       document.getElementById(btnId).classList.add('active-mode');
       enviarComando(cmd);
-    }
-
-    function cambiarVelocidad(val) {
-      let numVal = parseInt(val);
-      let label = document.getElementById("speedLabel");
-      
-      if (numVal >= 75) {
-        label.innerText = "Estático (Fijo)";
-      } else if (numVal >= 45) {
-        label.innerText = "Lento";
-      } else if (numVal >= 25) {
-        label.innerText = "Normal";
-      } else {
-        label.innerText = "Rápido";
-      }
-
-      enviarComando("SPEED:" + numVal);
     }
 
     function actualizarUIFisicaLuz(tipo, encendido) {
