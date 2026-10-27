@@ -208,21 +208,21 @@
         
         <!-- A -->
         <div class="msg-group">
-          <input type="text" id="inputA" placeholder="Texto A..." oninput="guardarLocalYSilencioso('A', this.value)">
+          <input type="text" id="inputA" placeholder="Texto A..." oninput="guardarLocalYSilencioso('A', this.value)" onkeydown="detectarEnterMensaje(event, 'A', 'inputA', 'btnMsgA')">
           <button class="btn-save" onclick="guardarMensaje('A', 'inputA')">Guardar</button>
           <button class="btn-send" id="btnMsgA" onclick="enviarAlAire('A', 'inputA', 'btnMsgA')">Al Aire</button>
         </div>
 
         <!-- B -->
         <div class="msg-group">
-          <input type="text" id="inputB" placeholder="Texto B..." oninput="guardarLocalYSilencioso('B', this.value)">
+          <input type="text" id="inputB" placeholder="Texto B..." oninput="guardarLocalYSilencioso('B', this.value)" onkeydown="detectarEnterMensaje(event, 'B', 'inputB', 'btnMsgB')">
           <button class="btn-save" onclick="guardarMensaje('B', 'inputB')">Guardar</button>
           <button class="btn-send" id="btnMsgB" onclick="enviarAlAire('B', 'inputB', 'btnMsgB')">Al Aire</button>
         </div>
 
         <!-- C -->
         <div class="msg-group">
-          <input type="text" id="inputC" placeholder="Texto C..." oninput="guardarLocalYSilencioso('C', this.value)">
+          <input type="text" id="inputC" placeholder="Texto C..." oninput="guardarLocalYSilencioso('C', this.value)" onkeydown="detectarEnterMensaje(event, 'C', 'inputC', 'btnMsgC')">
           <button class="btn-save" onclick="guardarMensaje('C', 'inputC')">Guardar</button>
           <button class="btn-send" id="btnMsgC" onclick="enviarAlAire('C', 'inputC', 'btnMsgC')">Al Aire</button>
         </div>
@@ -231,19 +231,19 @@
 
         <!-- D -->
         <div class="msg-group">
-          <input type="text" id="inputD" placeholder="Rápido 1..." oninput="guardarLocalYSilencioso('D', this.value)">
+          <input type="text" id="inputD" placeholder="Rápido 1..." oninput="guardarLocalYSilencioso('D', this.value)" onkeydown="detectarEnterMensaje(event, 'D', 'inputD', 'btnMsgD')">
           <button class="btn-quick" id="btnMsgD" onclick="enviarAlAire('D', 'inputD', 'btnMsgD')">Al Aire</button>
         </div>
 
         <!-- E -->
         <div class="msg-group">
-          <input type="text" id="inputE" placeholder="Rápido 2..." oninput="guardarLocalYSilencioso('E', this.value)">
+          <input type="text" id="inputE" placeholder="Rápido 2..." oninput="guardarLocalYSilencioso('E', this.value)" onkeydown="detectarEnterMensaje(event, 'E', 'inputE', 'btnMsgE')">
           <button class="btn-quick" id="btnMsgE" onclick="enviarAlAire('E', 'inputE', 'btnMsgE')">Al Aire</button>
         </div>
 
         <!-- F -->
         <div class="msg-group">
-          <input type="text" id="inputF" placeholder="Rápido 3..." oninput="guardarLocalYSilencioso('F', this.value)">
+          <input type="text" id="inputF" placeholder="Rápido 3..." oninput="guardarLocalYSilencioso('F', this.value)" onkeydown="detectarEnterMensaje(event, 'F', 'inputF', 'btnMsgF')">
           <button class="btn-quick" id="btnMsgF" onclick="enviarAlAire('F', 'inputF', 'btnMsgF')">Al Aire</button>
         </div>
       </div>
@@ -308,6 +308,13 @@
 
     function detectarEnterLogin(event) {
       if (event.key === "Enter") validarAcceso();
+    }
+
+    function detectarEnterMensaje(event, prefijo, inputId, btnId) {
+      if (event.key === "Enter") {
+        event.preventDefault();
+        enviarAlAire(prefijo, inputId, btnId);
+      }
     }
 
     function iniciarConexionMQTT() {
