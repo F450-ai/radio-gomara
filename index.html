@@ -4,7 +4,6 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Control Radio Gomara</title>
-  <!-- Library Paho MQTT over WebSockets -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/paho-mqtt/1.0.1/mqttws31.min.js"></script>
   <style>
     * {
@@ -61,7 +60,6 @@
       letter-spacing: 1px;
     }
 
-    /* PANTALLA DE LOGIN */
     #loginScreen {
       margin-top: 50px;
       text-align: center;
@@ -80,7 +78,6 @@
       display: none;
     }
 
-    /* CONTENEDOR PRINCIPAL (Oculto por defecto) */
     #mainContent {
       display: none;
       width: 100%;
@@ -138,7 +135,7 @@
 
     .msg-group {
       display: flex;
-      gap: 8px;
+      gap: 6px;
       margin-bottom: 12px;
     }
 
@@ -161,15 +158,21 @@
       border-color: #00E676;
     }
 
+    .btn-save {
+      background-color: #455A64;
+      color: #FFF;
+      padding: 10px 12px;
+      font-size: 13px;
+    }
+    .btn-save:hover { background-color: #546E7A; }
+
     .btn-send {
       background-color: #2979FF;
       color: #FFF;
-      min-width: 80px;
+      padding: 10px 12px;
+      font-size: 13px;
     }
-
-    .btn-send:hover {
-      background-color: #2962FF;
-    }
+    .btn-send:hover { background-color: #2962FF; }
   </style>
 </head>
 <body>
@@ -187,7 +190,7 @@
     </div>
   </div>
 
-  <!-- PANEL PRINCIPAL (Se muestra solo tras autenticarse) -->
+  <!-- PANEL PRINCIPAL -->
   <div id="mainContent">
     <div id="status" class="status-bar disconnected" style="text-align: center;">Estado: Desconectado</div>
 
@@ -197,20 +200,23 @@
       
       <!-- Mensaje A -->
       <div class="msg-group">
-        <input type="text" id="inputA" placeholder="Texto A..." value="COMUNICACION GOMARA" onkeydown="detectarEnter(event, 'A', 'inputA', 'btnMsgA')">
-        <button class="btn-send" id="btnMsgA" onclick="enviarTextoPersonalizado('A', 'inputA', 'btnMsgA')">Enviar A</button>
+        <input type="text" id="inputA" placeholder="Texto A..." oninput="guardarLocalYSilencioso('A', this.value)">
+        <button class="btn-save" title="Guarda el texto en el esclavo sin mostrarlo al aire" onclick="guardarMensaje('A', 'inputA')">Guardar</button>
+        <button class="btn-send" id="btnMsgA" title="Envía y muestra el mensaje al aire inmediatamente" onclick="enviarAlAire('A', 'inputA', 'btnMsgA')">Al Aire</button>
       </div>
 
       <!-- Mensaje B -->
       <div class="msg-group">
-        <input type="text" id="inputB" placeholder="Texto B..." value="COMUNICACION GOMARA" onkeydown="detectarEnter(event, 'B', 'inputB', 'btnMsgB')">
-        <button class="btn-send" id="btnMsgB" onclick="enviarTextoPersonalizado('B', 'inputB', 'btnMsgB')">Enviar B</button>
+        <input type="text" id="inputB" placeholder="Texto B..." oninput="guardarLocalYSilencioso('B', this.value)">
+        <button class="btn-save" title="Guarda el texto en el esclavo sin mostrarlo al aire" onclick="guardarMensaje('B', 'inputB')">Guardar</button>
+        <button class="btn-send" id="btnMsgB" title="Envía y muestra el mensaje al aire inmediatamente" onclick="enviarAlAire('B', 'inputB', 'btnMsgB')">Al Aire</button>
       </div>
 
       <!-- Mensaje C -->
       <div class="msg-group">
-        <input type="text" id="inputC" placeholder="Texto C..." value="COMUNICACION GOMARA" onkeydown="detectarEnter(event, 'C', 'inputC', 'btnMsgC')">
-        <button class="btn-send" id="btnMsgC" onclick="enviarTextoPersonalizado('C', 'inputC', 'btnMsgC')">Enviar C</button>
+        <input type="text" id="inputC" placeholder="Texto C..." oninput="guardarLocalYSilencioso('C', this.value)">
+        <button class="btn-save" title="Guarda el texto en el esclavo sin mostrarlo al aire" onclick="guardarMensaje('C', 'inputC')">Guardar</button>
+        <button class="btn-send" id="btnMsgC" title="Envía y muestra el mensaje al aire inmediatamente" onclick="enviarAlAire('C', 'inputC', 'btnMsgC')">Al Aire</button>
       </div>
     </div>
 
@@ -254,6 +260,13 @@
     let estadoLuzBlanca = false;
     let estadoLuzRoja = false;
 
+    // Cargar textos guardados al iniciar la página
+    window.onload = function() {
+      document.getElementById("inputA").value = localStorage.getItem("msg_A") || "COMUNICACION GOMARA";
+      document.getElementById("inputB").value = localStorage.getItem("msg_B") || "COMUNICACION GOMARA";
+      document.getElementById("inputC").value = localStorage.getItem("msg_C") || "COMUNICACION GOMARA";
+    };
+
     function validarAcceso() {
       const passIngresada = document.getElementById("passInput").value;
       const errorMsg = document.getElementById("errorMsg");
@@ -295,8 +308,6 @@
       const statusDiv = document.getElementById("status");
       statusDiv.innerHTML = "Estado: Conectado a la Nube";
       statusDiv.className = "status-bar connected";
-      
-      // Suscribirse al tópico de estado para enterarse si el Maestro prende las luces
       client.subscribe(topicEstado);
     }
 
@@ -314,7 +325,6 @@
       }
     }
 
-    // Recibir mensajes desde el broker (cuando el esclavo notifica cambios de luces)
     function onMessageArrived(message) {
       const payload = message.payloadString;
       if (message.destinationName === topicEstado) {
@@ -344,6 +354,30 @@
       }
     }
 
+    // Guarda automáticamente en el navegador al escribir (solo escribiendo ya queda guardado)
+    function guardarLocalYSilencioso(prefijo, texto) {
+      localStorage.setItem("msg_" + prefijo, texto);
+    }
+
+    // Botón "Guardar": Envía el texto al esclavo para que lo guarde en memoria SIN cambiar la pantalla actual
+    function guardarMensaje(prefijo, inputId) {
+      const texto = document.getElementById(inputId).value.trim();
+      if (texto.length > 0) {
+        enviarComando("TEXT_" + prefijo + ":" + texto);
+        alert("Mensaje " + prefijo + " guardado en el sistema.");
+      }
+    }
+
+    // Botón "Al Aire": Envía el texto y hace que la matriz lo muestre de inmediato
+    function enviarAlAire(prefijo, inputId, btnId) {
+      const texto = document.getElementById(inputId).value.trim();
+      if (texto.length > 0) {
+        limpiarSeleccionModos();
+        document.getElementById(btnId).classList.add('active-mode');
+        enviarComando(prefijo + ":" + texto);
+      }
+    }
+
     function limpiarSeleccionModos() {
       const botones = document.querySelectorAll('.grid-buttons button, .btn-send');
       botones.forEach(btn => {
@@ -357,23 +391,6 @@
       enviarComando(cmd);
     }
 
-    function enviarTextoPersonalizado(prefijo, inputId, btnId) {
-      const texto = document.getElementById(inputId).value.trim();
-      if (texto.length > 0) {
-        limpiarSeleccionModos();
-        document.getElementById(btnId).classList.add('active-mode');
-        enviarComando(prefijo + ":" + texto);
-      }
-    }
-
-    function detectarEnter(event, prefijo, inputId, btnId) {
-      if (event.key === "Enter" || event.keyCode === 13) {
-        event.preventDefault();
-        enviarTextoPersonalizado(prefijo, inputId, btnId);
-      }
-    }
-
-    // Actualiza visualmente los botones sin volver a enviar comandos MQTT en bucle
     function actualizarUIFisicaLuz(tipo, encendido) {
       if (tipo === 'blanca') {
         const btn = document.getElementById('btnLuzBlanca');
