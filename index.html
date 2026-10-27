@@ -68,14 +68,12 @@
       max-width: 1000px;
     }
 
-    /* Estructura para Celular (por defecto: columna hacia abajo) */
     .dashboard-grid {
       display: flex;
       flex-direction: column;
       gap: 20px;
     }
 
-    /* DISEÑO PARA PC (Pantallas mayores a 768px) */
     @media (min-width: 768px) {
       .dashboard-grid {
         display: grid;
@@ -322,12 +320,12 @@
     }
 
     function guardarMensaje(prefijo, inputId) {
-      const texto = document.getElementById(inputId).value; // Permite vacío
+      const texto = document.getElementById(inputId).value;
       enviarComando("TEXT_" + prefijo + ":" + texto);
     }
 
     function enviarAlAire(prefijo, inputId, btnId) {
-      const texto = document.getElementById(inputId).value; // Permite vacío
+      const texto = document.getElementById(inputId).value;
       document.querySelectorAll('.grid-buttons button, .btn-send').forEach(b => b.classList.remove('active-mode'));
       document.getElementById(btnId).classList.add('active-mode');
       enviarComando(prefijo + ":" + texto);
