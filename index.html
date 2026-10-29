@@ -23,11 +23,10 @@
       min-height: 100vh;
     }
 
-    /* Contenedor del título solo visible al estar logueado */
     .header-container {
       width: 100%;
       max-width: 1000px;
-      display: none; /* Oculto por defecto hasta loguearse */
+      display: none;
       justify-content: space-between;
       align-items: center;
       margin-bottom: 10px;
@@ -37,7 +36,6 @@
       color: #00E676;
     }
 
-    /* Título grande y centrado para la pantalla de Login */
     #loginTitle {
       font-size: 32px;
       color: #00E676;
@@ -219,11 +217,39 @@
 
     .btn-quick { background-color: #00897B; color: #FFF; padding: 10px 14px; font-size: 13px; }
     .btn-quick:hover { background-color: #00796B; }
+
+    /* ESTILOS PARA EL MONITOR DE MATRIZ LED EN VIVO */
+    .matrix-monitor-container {
+      margin-top: 20px;
+      background-color: #121212;
+      border: 1px solid #333;
+      border-radius: 8px;
+      padding: 12px;
+      text-align: center;
+    }
+    .matrix-monitor-label {
+      font-size: 11px;
+      color: #78909C;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 6px;
+    }
+    .matrix-monitor-screen {
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 16px;
+      font-weight: bold;
+      color: #00E676;
+      background-color: #0a0a0a;
+      padding: 10px;
+      border-radius: 6px;
+      border: 1px dashed #00E676;
+      letter-spacing: 1.5px;
+      word-break: break-all;
+    }
   </style>
 </head>
 <body>
 
-  <!-- Título superior (solo aparece cuando ya estás dentro del panel) -->
   <div id="headerContainer" class="header-container">
     <h1>RADIO GOMARA</h1>
     <button class="btn-logout" onclick="cerrarSesion()">Cerrar Sesión</button>
@@ -249,25 +275,22 @@
 
     <div class="dashboard-grid">
 
-      <!-- 1. MENSAJES (Izquierda en PC) -->
+      <!-- 1. MENSAJES -->
       <div class="section-card card-mensajes">
         <div class="section-title">Mensajes Personalizados</div>
         
-        <!-- A -->
         <div class="msg-group">
           <input type="text" id="inputA" placeholder="Texto A..." oninput="guardarLocalYSilencioso('A', this.value)" onkeydown="detectarEnterMensaje(event, 'A', 'inputA', 'btnMsgA')">
           <button class="btn-save" onclick="guardarMensaje('A', 'inputA')">Guardar</button>
           <button class="btn-send" id="btnMsgA" onclick="enviarAlAire('A', 'inputA', 'btnMsgA')">Al Aire</button>
         </div>
 
-        <!-- B -->
         <div class="msg-group">
           <input type="text" id="inputB" placeholder="Texto B..." oninput="guardarLocalYSilencioso('B', this.value)" onkeydown="detectarEnterMensaje(event, 'B', 'inputB', 'btnMsgB')">
           <button class="btn-save" onclick="guardarMensaje('B', 'inputB')">Guardar</button>
           <button class="btn-send" id="btnMsgB" onclick="enviarAlAire('B', 'inputB', 'btnMsgB')">Al Aire</button>
         </div>
 
-        <!-- C -->
         <div class="msg-group">
           <input type="text" id="inputC" placeholder="Texto C..." oninput="guardarLocalYSilencioso('C', this.value)" onkeydown="detectarEnterMensaje(event, 'C', 'inputC', 'btnMsgC')">
           <button class="btn-save" onclick="guardarMensaje('C', 'inputC')">Guardar</button>
@@ -276,26 +299,23 @@
 
         <div class="section-title" style="margin-top: 20px; font-size: 14px;">Mensajes Rápidos (Presets)</div>
 
-        <!-- D -->
         <div class="msg-group">
           <input type="text" id="inputD" placeholder="Rápido 1..." oninput="guardarLocalYSilencioso('D', this.value)" onkeydown="detectarEnterMensaje(event, 'D', 'inputD', 'btnMsgD')">
           <button class="btn-quick" id="btnMsgD" onclick="enviarAlAire('D', 'inputD', 'btnMsgD')">Al Aire</button>
         </div>
 
-        <!-- E -->
         <div class="msg-group">
           <input type="text" id="inputE" placeholder="Rápido 2..." oninput="guardarLocalYSilencioso('E', this.value)" onkeydown="detectarEnterMensaje(event, 'E', 'inputE', 'btnMsgE')">
           <button class="btn-quick" id="btnMsgE" onclick="enviarAlAire('E', 'inputE', 'btnMsgE')">Al Aire</button>
         </div>
 
-        <!-- F -->
         <div class="msg-group">
           <input type="text" id="inputF" placeholder="Rápido 3..." oninput="guardarLocalYSilencioso('F', this.value)" onkeydown="detectarEnterMensaje(event, 'F', 'inputF', 'btnMsgF')">
           <button class="btn-quick" id="btnMsgF" onclick="enviarAlAire('F', 'inputF', 'btnMsgF')">Al Aire</button>
         </div>
       </div>
 
-      <!-- 2. MODOS DE CARTEL (Derecha en PC) -->
+      <!-- 2. MODOS DE CARTEL + MONITOR EN VIVO DE LA MATRIZ -->
       <div class="section-card card-botones">
         <div class="section-title">Modos de Cartel</div>
         <div class="grid-buttons">
@@ -307,9 +327,15 @@
           <button id="btn6" onclick="seleccionarModo('6', 'btn6')">ESTUDIO A</button>
           <button id="btn7" onclick="seleccionarModo('7', 'btn7')">ESTUDIO B</button>
         </div>
+
+        <!-- MONITOR DE ESTADO DE LA MATRIZ (Ubicado justo debajo de los botones) -->
+        <div class="matrix-monitor-container">
+          <div class="matrix-monitor-label">🔴 Reproduciendo en Matriz LED:</div>
+          <div id="matrixDisplay" class="matrix-monitor-screen">Sincronizando...</div>
+        </div>
       </div>
 
-      <!-- 3. LUCES (Abajo) -->
+      <!-- 3. LUCES -->
       <div class="section-card card-luces">
         <div class="section-title">Control de Luces</div>
         <div class="grid-buttons">
@@ -327,13 +353,13 @@
     const port = 8884;
     const topicControl = "gomara/control";
     const topicEstado = "gomara/estado";
+    const topicMatrizEstado = "gomara/matriz_estado";
 
     let client = null;
     let estadoLuzBlanca = false;
     let estadoLuzRoja = false;
 
     window.onload = function() {
-      // Cargar textos guardados
       document.getElementById("inputA").value = localStorage.getItem("msg_A") || "";
       document.getElementById("inputB").value = localStorage.getItem("msg_B") || "";
       document.getElementById("inputC").value = localStorage.getItem("msg_C") || "";
@@ -341,7 +367,6 @@
       document.getElementById("inputE").value = localStorage.getItem("msg_E") || "";
       document.getElementById("inputF").value = localStorage.getItem("msg_F") || "";
 
-      // Verificar si ya estaba autenticado anteriormente
       if (localStorage.getItem("radio_auth") === "true") {
         activarSesion();
       }
@@ -360,7 +385,7 @@
 
     function activarSesion() {
       document.getElementById("loginScreen").style.display = "none";
-      document.getElementById("headerContainer").style.display = "flex"; // Muestra el título a la izquierda
+      document.getElementById("headerContainer").style.display = "flex";
       document.getElementById("mainContent").style.display = "block";
       iniciarConexionMQTT();
     }
@@ -384,25 +409,34 @@
     function iniciarConexionMQTT() {
       const clientID = "WebControl_" + Math.random().toString(16).substr(2, 8);
       client = new Paho.MQTT.Client(broker, port, clientID);
+      
       client.onConnectionLost = () => {
         document.getElementById("status").innerHTML = "Conexión perdida. Reintentando...";
         document.getElementById("status").className = "status-bar disconnected";
       };
+
       client.onMessageArrived = (message) => {
+        const payload = message.payloadString;
+
         if (message.destinationName === topicEstado) {
-          const payload = message.payloadString;
           if (payload === "W") { estadoLuzBlanca = true; actualizarUIFisicaLuz('blanca', true); }
           else if (payload === "w") { estadoLuzBlanca = false; actualizarUIFisicaLuz('blanca', false); }
           else if (payload === "R") { estadoLuzRoja = true; actualizarUIFisicaLuz('roja', true); }
           else if (payload === "r") { estadoLuzRoja = false; actualizarUIFisicaLuz('roja', false); }
         }
+
+        if (message.destinationName === topicMatrizEstado) {
+          document.getElementById("matrixDisplay").innerText = payload;
+        }
       };
+
       client.connect({
         useSSL: true, userName: "radio_gomara", password: "gomara2026",
         onSuccess: () => {
           document.getElementById("status").innerHTML = "Estado: Conectado a la Nube";
           document.getElementById("status").className = "status-bar connected";
           client.subscribe(topicEstado);
+          client.subscribe(topicMatrizEstado);
         }
       });
     }
